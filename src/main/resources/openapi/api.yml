@@ -1,0 +1,480 @@
+openapi: 3.0.0
+
+info:
+  title: Weather Service Microservice API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local Server
+
+
+
+
+
+
+
+paths:
+  /user/profile:
+    get:
+      summary: Get user profile information
+      operationId: getUserProfile
+      tags:
+        - profile
+      responses:
+        '200':
+          description: User profile information retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "User profile information retrieved successfully"
+                      data:
+                        $ref: '#/components/schemas/UserProfile'
+    put:
+      summary: Update user profile information
+      operationId: updateUserProfile
+      tags:
+        - profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: User profile information updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "User profile information retrieved successfully"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500InternalError'
+  /user/profile/image:
+    put:
+      summary: Update user profile image
+      operationId: updateUserProfileImage
+      tags:
+        - profile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: The user's avatar image file to upload
+      responses:
+        '200':
+          description: User profile image updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "User profile image updated successfully"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500InternalError'
+  /user/friends:
+    get:
+      summary: Get user's friend list
+      operationId: getUserFriends
+      tags:
+        - friends
+      responses:
+        '200':
+          description: User's friend list retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "Get user's friend list successfully"
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Friend'
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500InternalError'
+  /user/friends/friend-requests:
+    get:
+      summary: Get user's friend requests
+      operationId: getUserFriendRequests
+      tags:
+        - friends
+      responses:
+        '200':
+          description: User's friend requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "User profile image updated successfully"
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/FriendRequest'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/500InternalError'
+  /user/friends/add-friend:
+    post:
+      summary: Send a friend request
+      operationId: sendFriendRequest
+      tags:
+        - friends
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFriendRequest'
+
+      responses:
+        '200':
+          description: Friend request sent successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "Friend request sent successfully"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500InternalError'
+  /user/friends/accept-friend-request:
+    post:
+      summary: Accept a friend request
+      operationId: acceptFriendRequest
+      tags:
+        - friends
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendRequestId'
+      responses:
+        '200':
+          description: Friend request accepted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "Friend request accepted successfully"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500InternalError'
+  /user/friends/deny-friend-request:
+    post:
+      summary: Deny a friend request
+      operationId: denyFriendRequest
+      tags:
+        - friends
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendRequestId'
+      responses:
+        '200':
+          description: Friend request denied successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        description: Custom success message
+                        example: "Friend request denied successfully"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500InternalError'
+components:
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique identifier for the user
+          example: "123456789"
+        username:
+          type: string
+          description: Username chosen by the user
+          example: "john_doe"
+        displayName:
+          type: string
+          description: Full name of the user
+          example: "John Doe"
+        email:
+          type: string
+          description: Email address of the user
+          example: "john.doe@example.com"
+        avatarUrl:
+          type: string
+          description: URL to the user's avatar image
+          example: "https://example.com/avatar.jpg"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the user profile was created
+          example: "2024-07-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to the user profile
+          example: "2024-07-01T15:30:00Z"
+        address:
+          type: object
+          description: User's address details
+          properties:
+            country:
+              type: string
+              description: Country where the user resides
+              example: "Vietnam"
+            province:
+              type: string
+              description: Province where the user resides
+              example: "Hanoi"
+            city:
+              type: string
+              description: City where the user resides
+              example: "Hanoi"
+            district:
+              type: string
+              description: District where the user resides
+              example: "Cau Giay"
+            ward:
+              type: string
+              description: Ward where the user resides
+              example: "Nghia Tan"
+    UpdateProfileRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+          description: Full name of the user
+          example: "John Doe"
+        address:
+          type: object
+          description: User's address details
+          properties:
+            country:
+              type: string
+              description: Country where the user resides
+              example: "Vietnam"
+            province:
+              type: string
+              description: Province where the user resides
+              example: "Hanoi"
+            city:
+              type: string
+              description: City where the user resides
+              example: "Hanoi"
+            district:
+              type: string
+              description: District where the user resides
+              example: "Cau Giay"
+            ward:
+              type: string
+              description: Ward where the user resides
+              example: "Nghia Tan"
+    CommonResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          nullable: true
+          description: Error code for the response, null if the operation is successful
+          example: null
+        message:
+          type: string
+          description: Response message
+          example: "Operation successful"
+        data:
+          type: object
+          nullable: true
+          description: Additional data for the response
+    PageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Custom success message
+          example: "Get page information successfully"
+        data:
+            type: object
+            properties:
+                totalItems:
+                  type: integer
+                  description: Current page number
+                  example: 100
+                pageSize:
+                  type: integer
+                  description: Number of items per page
+                  example: 5
+                currentPage:
+                  type: integer
+                  description: Total number of items
+                  example: 1
+                totalPages:
+                  type: integer
+                  description: Total number of pages
+                  example: 10
+    500InternalError:
+      type: object
+      description: Internal Server Error Occured
+      properties:
+        errorCode:
+          type: string
+          description: internalServerErrorOccured
+          example: ERROR1
+        message:
+          type: string
+          description: Internal Server Error has Occured
+          example: Internal Server Error has Occured
+    Friend:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique identifier for the user
+          example: "123456789"
+        username:
+          type: string
+          description: Username chosen by the user
+          example: "john_doe"
+        displayName:
+          type: string
+          description: Full name of the user
+          example: "John Doe"
+        avatarUrl:
+          type: string
+          description: URL to the user's avatar image
+          example: "https://example.com/avatar.jpg"
+        email:
+          type: string
+          description: Email address of the user
+          example: "johndoe@example.com"
+    FriendRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "123456789"
+        senderId:
+          type: string
+          description: Unique identifier for the user who sent the friend request
+          example: "890123456"
+        senderUsername:
+          type: string
+          description: Username of the user who sent the friend request
+          example: "jane_doe"
+        senderDisplayName:
+          type: string
+          description: Full name of the user who sent the friend request
+          example: "Jane Doe"
+        senderAvatarUrl:
+          type: string
+          description: URL to the avatar image of the user who sent the friend request
+          example: "https://example.com/avatar.jpg"
+        sentAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the friend request was sent
+          example: "2024-07-01T10:00:00Z"
+    FriendRequestId:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "123456789"
+    AddFriendRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique identifier for the user to add as a friend
+          example: "123456789"
