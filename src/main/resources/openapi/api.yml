@@ -9,11 +9,6 @@ servers:
     description: Local Server
 
 
-
-
-
-
-
 paths:
   /user/profile:
     get:

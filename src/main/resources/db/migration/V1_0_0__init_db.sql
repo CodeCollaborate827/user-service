@@ -1,18 +1,20 @@
 
 -- Create the users table
 CREATE TABLE IF NOT EXISTS users (
-                       id VARCHAR(255) PRIMARY KEY,
-                       username VARCHAR(255) NOT NULL UNIQUE,
-                       display_name VARCHAR(255),
-                       email VARCHAR(255) NOT NULL UNIQUE,
-                       created_at TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
+   id VARCHAR(255) PRIMARY KEY,
+   username VARCHAR(255) NOT NULL UNIQUE,
+   display_name VARCHAR(255),
+   avatar_url VARCHAR(255),
+   email VARCHAR(255) NOT NULL UNIQUE,
+   created_at TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS  user_address (
     id        SERIAL PRIMARY KEY,
     user_id   VARCHAR(255),
     country   VARCHAR(255),
+    province VARCHAR(255),
     city      VARCHAR(255),
     district  VARCHAR(255),
     ward      VARCHAR(255),

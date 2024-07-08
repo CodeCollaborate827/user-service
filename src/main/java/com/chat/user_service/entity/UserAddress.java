@@ -1,0 +1,29 @@
+package com.chat.user_service.entity;
+
+
+import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
+
+@Table(name = "user_address")
+@Data
+public class UserAddress {
+
+  @Id
+  private String id;
+  private String userId;
+  private String country;
+  private String province;
+  private String city;
+  private String district;
+  private String ward;
+
+  @CreatedDate
+  private LocalDateTime createdAt;
+  @LastModifiedDate
+  private LocalDateTime updatedAt;
+}
