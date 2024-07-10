@@ -2,7 +2,6 @@ package com.chat.user_service.service;
 
 import com.chat.user_service.entity.UserAddress;
 import com.chat.user_service.repository.UserAddressRepository;
-import com.chat.user_service.server.model.UserProfileAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

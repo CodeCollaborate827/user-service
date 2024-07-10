@@ -2,15 +2,15 @@ package com.chat.user_service.utils;
 
 import com.chat.user_service.entity.User;
 import com.chat.user_service.entity.UserAddress;
-import com.chat.user_service.server.model.UserProfile;
-import com.chat.user_service.server.model.UserProfileAddress;
+import com.chat.user_service.model.UserProfileResponse;
+import com.chat.user_service.model.UserProfileResponseAddress;
 
 import java.time.OffsetDateTime;
 
 public class Utils {
 
-  public static UserProfile convertUserToUserProfile(User user) {
-    UserProfile userProfile = new UserProfile();
+  public static UserProfileResponse convertUserToUserProfile(User user) {
+    UserProfileResponse userProfile = new UserProfileResponse();
     userProfile.setUserId(user.getId());
     userProfile.setEmail(user.getEmail());
     userProfile.setDisplayName(user.getDisplayName());
@@ -22,15 +22,15 @@ public class Utils {
     return userProfile;
   }
 
-  public static UserProfileAddress convertUserAddressToUserProfileAddress(UserAddress userAddress) {
-    UserProfileAddress userProfileAddress = new UserProfileAddress();
-    userProfileAddress.setCountry(userAddress.getCountry());
-    userProfileAddress.setCity(userAddress.getCity());
-    userProfileAddress.district(userAddress.getDistrict());
-    userProfileAddress.setProvince(userAddress.getProvince());
-    userProfileAddress.setWard(userAddress.getWard());
 
-    return userProfileAddress;
+  public static UserProfileResponseAddress convertUserAddressToUserProfileAddress(UserAddress userAddress) {
+    UserProfileResponseAddress userProfileResponseAddress = new UserProfileResponseAddress();
+    userProfileResponseAddress.setCountry(userAddress.getCountry());
+    userProfileResponseAddress.setCity(userAddress.getCity());
+    userProfileResponseAddress.setProvince(userAddress.getProvince());
+    userProfileResponseAddress.setDistrict(userAddress.getDistrict());
+    userProfileResponseAddress.setWard(userAddress.getWard());
+
+    return userProfileResponseAddress;
   }
-
 }
