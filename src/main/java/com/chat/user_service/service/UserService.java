@@ -10,12 +10,18 @@ import com.chat.user_service.model.UserProfileResponse;
 import com.chat.user_service.model.UserProfileResponseAddress;
 import com.chat.user_service.repository.UserRepository;
 import com.chat.user_service.utils.Utils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
+@Slf4j
 public class UserService {
 
   @Autowired
@@ -25,10 +31,10 @@ public class UserService {
 
   public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(String userId) {
     // get the user
-    return Mono.zip(userRepository.findById(userId), userAddressService.getUserAddress(userId).switchIfEmpty(Mono.just(new UserAddress())))
-            .map(t2 -> {
-              UserProfileResponse userProfileResponse = Utils.convertUserToUserProfile(t2.getT1());
-              UserProfileResponseAddress userProfileResponseAddress = Utils.convertUserAddressToUserProfileAddress(t2.getT2());
+    return getUserById(userId)
+            .map(user -> {
+              UserProfileResponse userProfileResponse = Utils.convertUserToUserProfile(user);
+              UserProfileResponseAddress userProfileResponseAddress = Utils.convertUserAddressToUserProfileAddress(user.getAddress());
               userProfileResponse.setAddress(userProfileResponseAddress);
               return userProfileResponse;
             })
@@ -36,98 +42,56 @@ public class UserService {
             .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
   }
 
-  private User getUserById(String userId) {
-    // get the user
+  private Mono<User> getUserById(String userId) {
+    // get the user and the user address (if the user address is not present, use default empty address value)
     return Mono.zip(userRepository.findById(userId), userAddressService.getUserAddress(userId).switchIfEmpty(Mono.just(new UserAddress())))
             .map(t2 -> {
               User user = t2.getT1();
-              UserAddress = t2.getT2();
-              
-              user.setAddress(user);
-              return userProfileResponse;
-            } )
-  }
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest) {
-
+              UserAddress userAddress = t2.getT2();
+              user.setAddress(userAddress);
+              return user;
+            });
   }
 
-//  public Mono<ResponseEntity<com.chat.user_service.server.model.UserProfileResponse>> getUserProfile(String userId) {
-//    return Mono.zip(userRepository.findById(userId), userAddressService.getUserAddress(userId))
-//            .map(t2 -> {
-//              com.chat.user_service.server.model.UserProfileResponse userProfile = new com.chat.user_service.server.model.UserProfileResponse();
-//
-//            })
-//  }
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest, String userId) {
+    return getUserById(userId).zipWith(updateProfileRequest)
+            .flatMap(t2 -> {
+              User user = t2.getT1();
+              UpdateProfileRequest request = t2.getT2();
+
+              log.info("User:{}", user);
+              // update the user display name
+              if (Objects.nonNull(request.getDisplayName())) {
+                log.info("Updating user last name for user id: {}", user.getId());
+                user.setDisplayName(request.getDisplayName());
+                user.setUpdatedAt(LocalDateTime.now());
+              }
+
+              UserAddress userAddress = user.getAddress();
+              if (Objects.nonNull(request.getAddress())) {
+                UserProfileResponseAddress newAddress = request.getAddress();
+                log.info("Updating user address for user id: {}", user.getId());
+
+                // update the user address
+                if (Objects.nonNull(newAddress.getCountry())) userAddress.setCountry(newAddress.getCountry());
+                if (Objects.nonNull(newAddress.getProvince())) userAddress.setProvince(newAddress.getProvince());
+                if (Objects.nonNull(newAddress.getCity())) userAddress.setCity(newAddress.getCity());
+                if (Objects.nonNull(newAddress.getDistrict())) userAddress.setDistrict(newAddress.getDistrict());
+                if (Objects.nonNull(newAddress.getWard())) userAddress.setWard(newAddress.getWard());
+
+                userAddress.setUpdatedAt(LocalDateTime.now());
+              }
+
+              // save the user and the user address
+              return userRepository.save(user)
+                      .then(userAddressService.save(userAddress));
+
+            })
+            .then(Mono.just(Utils.createSuccessResponse("User profile updated successfully")))
+            .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
+  }
 
 
 
-//  public Mono<ResponseEntity<GetUserProfile200Response>> getUserProfile(String userId) {
-//    return userRepository.findById(userId)
-//            .map(Utils::convertUserToUserProfile)
-//            .flatMap(userProfile -> {
-//              return userAddressService.getUserAddress(userProfile.getUserId())
-//                      .map(Utils::convertUserAddressToUserProfileAddress)
-//                      .map(userProfileAddress -> {
-//                        userProfile.setAddress(userProfileAddress);
-//                        return userProfile;
-//                      });
-//            })
-//            .map(userProfile -> {
-//              GetUserProfile200Response response = new GetUserProfile200Response();
-//              response.setData(userProfile);
-//              response.setMessage("User profile retrieved successfully");
-//              return ResponseEntity.ok(response);
-//            });
-//  }
-//
-//  public Mono<User> getUser(String userId) {
-//    return userRepository.findById(userId);
-//  }
-//
-//  public Mono<ResponseEntity<UpdateUserProfile200Response>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest) {
-//    return Mono.zip(updateProfileRequest, userRepository.findById("test"), userAddressService.getUserAddress("test"))
-//            .flatMap(t3 -> {
-//              UpdateProfileRequest request = t3.getT1();
-//              User user = t3.getT2();
-//              UserAddress userAddress = t3.getT3();
-//
-//
-//              // set display name if the new display name is not null and different from current display name
-//              if (Objects.nonNull(request.getDisplayName()) && !Objects.equals(request.getDisplayName(), request.getDisplayName())) {
-//                user.setDisplayName(request.getDisplayName());
-//              }
-//
-//              UserProfileAddress address = request.getAddress();
-//
-//              // set address if the new address is not null and different from current address
-//              if (Objects.nonNull(address)) {
-//                if (Objects.nonNull(address.getCountry()) && !Objects.equals(address.getCountry(), userAddress.getCountry())) {
-//                  userAddress.setCountry(address.getCountry());
-//                }
-//
-//                if (Objects.nonNull(address.getCity()) && !Objects.equals(address.getCity(), userAddress.getCity())) {
-//                  userAddress.setCity(address.getCity());
-//                }
-//
-//                if (Objects.nonNull(address.getDistrict()) && !Objects.equals(address.getDistrict(), userAddress.getDistrict())) {
-//                  userAddress.setDistrict(address.getDistrict());
-//                }
-//
-//                if (Objects.nonNull(address.getProvince()) && !Objects.equals(address.getProvince(), userAddress.getProvince())) {
-//                  userAddress.setProvince(address.getProvince());
-//                }
-//
-//                if (Objects.nonNull(address.getWard()) && !Objects.equals(address.getWard(), userAddress.getWard())) {
-//                  userAddress.setWard(address.getWard());
-//                }
-//
-//
-//              }
-//
-//              return Mono.zip(userRepository.save(user), userAddressService.save(userAddress)) ;
-//            })
-//            .then(Mono.just(ResponseEntity.ok().body(new UpdateUserProfile200Response())));
-//
-//  }
 
 }

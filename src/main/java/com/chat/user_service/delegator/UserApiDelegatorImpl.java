@@ -52,7 +52,7 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(ServerWebExchange exchange) {
-    String userId = "test1";
+    String userId = "test";
     return userService.getUserProfile(userId);
   }
 
@@ -63,8 +63,8 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest, ServerWebExchange exchange) {
-    String userId = "test1";
-    return userService.updateUserProfile(updateProfileRequest);
+    String userId = "test";
+    return userService.updateUserProfile(updateProfileRequest, userId);
   }
 
   @Override

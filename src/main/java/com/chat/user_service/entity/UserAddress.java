@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class UserAddress {
 
   @Id
-  private String id;
+  private Long id;
   private String userId;
   private String country;
   private String province;

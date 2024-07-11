@@ -2,8 +2,10 @@ package com.chat.user_service.utils;
 
 import com.chat.user_service.entity.User;
 import com.chat.user_service.entity.UserAddress;
+import com.chat.user_service.model.CommonSuccessResponse;
 import com.chat.user_service.model.UserProfileResponse;
 import com.chat.user_service.model.UserProfileResponseAddress;
+import org.springframework.http.ResponseEntity;
 
 import java.time.OffsetDateTime;
 
@@ -33,4 +35,15 @@ public class Utils {
 
     return userProfileResponseAddress;
   }
+
+  public static ResponseEntity<CommonSuccessResponse> createSuccessResponse(String message) {
+    CommonSuccessResponse response = new CommonSuccessResponse();
+    response.setMessage(message);
+
+
+    return ResponseEntity.ok(response);
+  }
+
+
+
 }
