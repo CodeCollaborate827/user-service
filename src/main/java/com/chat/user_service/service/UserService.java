@@ -4,10 +4,8 @@ import com.chat.user_service.entity.User;
 import com.chat.user_service.entity.UserAddress;
 import com.chat.user_service.exception.ApplicationException;
 import com.chat.user_service.exception.ErrorCode;
-import com.chat.user_service.model.CommonSuccessResponse;
-import com.chat.user_service.model.UpdateProfileRequest;
-import com.chat.user_service.model.UserProfileResponse;
-import com.chat.user_service.model.UserProfileResponseAddress;
+import com.chat.user_service.model.*;
+import com.chat.user_service.repository.FriendshipRepository;
 import com.chat.user_service.repository.UserRepository;
 import com.chat.user_service.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class UserService {
+  @Autowired
+  private FriendshipRepository friendshipRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -92,6 +92,34 @@ public class UserService {
   }
 
 
+  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriendFriends(String userId, int pageSize, int currentPage) {
+     // count the total item first
+      return friendshipRepository.countByUser1IdOrUser2Id(userId, userId)
+              .flatMap(count -> {
+                FriendsListPagingResponse response = new FriendsListPagingResponse();
+                response.setTotalItems(count);
+                response.setPageSize(pageSize);
+                response.currentPage(currentPage);
 
+                int totalPageNum = (int) Math.ceil((double) count / pageSize);
+                response.setTotalPages(totalPageNum);
 
+                int offset = (currentPage - 1) * (currentPage * pageSize);
+                int limit = offset + pageSize - 1;
+
+                // fetch user object and convert to Friend dto and set data for the paging response
+                return friendshipRepository.findUserFriendsPaging(userId, offset, limit)
+                        .collectList()
+                        .doOnNext(item -> log.info("user {} ", item))
+                        .map(userList ->  userList.stream().map(Utils::convertUserToFriend).collect(Collectors.toList()))
+                        .map(friendList -> {
+                          response.setFriends(friendList);
+
+                          return response;
+                        });
+
+              })
+              .map(ResponseEntity.ok()::body);
+
+  }
 }

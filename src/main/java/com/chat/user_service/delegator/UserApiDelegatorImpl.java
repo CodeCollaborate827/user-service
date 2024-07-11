@@ -47,7 +47,10 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(ServerWebExchange exchange) {
-    return UserApiDelegate.super.getUserFriends(exchange);
+    String userId = "test";
+    int pageSize = 5;
+    int currentPage = 1;
+    return userService.getUserFriendFriends(userId, pageSize, currentPage);
   }
 
   @Override

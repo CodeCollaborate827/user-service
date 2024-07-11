@@ -3,6 +3,7 @@ package com.chat.user_service.utils;
 import com.chat.user_service.entity.User;
 import com.chat.user_service.entity.UserAddress;
 import com.chat.user_service.model.CommonSuccessResponse;
+import com.chat.user_service.model.Friend;
 import com.chat.user_service.model.UserProfileResponse;
 import com.chat.user_service.model.UserProfileResponseAddress;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,17 @@ public class Utils {
 
 
     return ResponseEntity.ok(response);
+  }
+
+  public static Friend convertUserToFriend(User user) {
+    Friend friend = new Friend();
+    friend.setUserId(user.getId());
+    friend.setUsername(user.getUsername());
+    friend.setDisplayName(user.getDisplayName());
+    friend.setAvatarUrl(user.getAvatarUrl());
+    friend.setEmail(user.getEmail());
+
+    return friend;
   }
 
 
