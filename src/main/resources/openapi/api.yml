@@ -253,12 +253,12 @@ components:
           type: string
           format: date-time
           description: Timestamp of when the user profile was created
-          example: "2024-07-01T10:00:00Z"
+          example: "2024-07-12T09:02:48.597888600+07:00"
         updatedAt:
           type: string
           format: date-time
           description: Timestamp of the last update to the user profile
-          example: "2024-07-01T15:30:00Z"
+          example: "2024-07-12T09:02:48.597888600+07:00"
         address:
           type: object
           description: User's address details
@@ -302,21 +302,21 @@ components:
           type: integer
           description: Total number of pages
           example: 20
-        friends:
+        items:
           type: array
           description: List of friends on the current page
           items:
-            $ref: '#/components/schemas/Friend'
+            $ref: '#/components/schemas/FriendDTO'
     FriendRequestListPagingResponse:
       type: object
       properties:
-        totalRequests:
+        totalItems:
           type: integer
           description: Total number of friend requests
           example: 50
-        requestsCount:
+        pageSize:
           type: integer
-          description: Number of friend requests on the current page
+          description: Number of friend requests on the each page
           example: 5
         currentPage:
           type: integer
@@ -326,11 +326,11 @@ components:
           type: integer
           description: Total number of pages
           example: 10
-        friendRequests:
+        items:
           type: array
           description: List of friend requests on the current page
           items:
-            $ref: '#/components/schemas/FriendRequest'
+            $ref: '#/components/schemas/FriendRequestDTO'
     CommonSuccessResponse:
       type: object
       properties:
@@ -392,7 +392,7 @@ components:
           type: string
           description: Internal Server Error has Occured
           example: Internal Server Error has Occured
-    Friend:
+    FriendDTO:
       type: object
       properties:
         userId:
@@ -415,26 +415,26 @@ components:
           type: string
           description: Email address of the user
           example: "johndoe@example.com"
-    FriendRequest:
+    FriendRequestDTO:
       type: object
       properties:
         requestId:
-          type: string
+          type: long
           description: Unique identifier for the friend request
-          example: "req123456"
-        userId:
+          example: 1
+        senderId:
           type: string
           description: Unique identifier of the user sending the request
           example: "789012345"
-        username:
+        senderUsername:
           type: string
           description: Username of the user sending the request
           example: "john_doe"
-        displayName:
+        senderDisplayName:
           type: string
           description: Full name of the user sending the request
           example: "John Doe"
-        avatarUrl:
+        senderAvatarUrl:
           type: string
           description: URL to the avatar image of the user sending the request
           example: "https://example.com/john_avatar.jpg"
@@ -442,7 +442,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the friend request was sent
-          example: "2024-06-01T12:34:56Z"
+          example: "2024-07-12T09:02:48.597888600+07:00"
     AddFriendRequest:
       type: object
       properties:

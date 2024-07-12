@@ -5,10 +5,12 @@ import com.chat.user_service.api.UserApiDelegate;
 import com.chat.user_service.model.*;
 import com.chat.user_service.service.FriendshipService;
 import com.chat.user_service.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -16,14 +18,13 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class UserApiDelegatorImpl implements UserApiDelegate {
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
 
-  @Autowired
-  private FriendshipService friendshipService;
+  private final FriendshipService friendshipService;
 
   @Override
   public Optional<NativeWebRequest> getRequest() {
@@ -42,7 +43,10 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<FriendRequestListPagingResponse>> getUserFriendRequests(ServerWebExchange exchange) {
-    return UserApiDelegate.super.getUserFriendRequests(exchange);
+    String userId = "test";
+    int pageSize = 5;
+    int currentPage = 1;
+    return friendshipService.getUserFriendRequests(userId, pageSize, currentPage);
   }
 
   @Override
@@ -50,7 +54,7 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
     String userId = "test";
     int pageSize = 5;
     int currentPage = 1;
-    return userService.getUserFriendFriends(userId, pageSize, currentPage);
+    return userService.getUserFriends(userId, pageSize, currentPage);
   }
 
   @Override

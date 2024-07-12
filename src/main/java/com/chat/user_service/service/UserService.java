@@ -8,6 +8,7 @@ import com.chat.user_service.model.*;
 import com.chat.user_service.repository.FriendshipRepository;
 import com.chat.user_service.repository.UserRepository;
 import com.chat.user_service.utils.Utils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,11 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
-  @Autowired
-  private FriendshipRepository friendshipRepository;
-
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private UserAddressService userAddressService;
+  private final FriendshipRepository friendshipRepository;
+  private final UserRepository userRepository;
+  private final UserAddressService userAddressService;
 
   public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(String userId) {
     // get the user
@@ -54,6 +52,7 @@ public class UserService {
   }
 
   public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest, String userId) {
+    // TODO: refactor this code
     return getUserById(userId).zipWith(updateProfileRequest)
             .flatMap(t2 -> {
               User user = t2.getT1();
@@ -92,7 +91,7 @@ public class UserService {
   }
 
 
-  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriendFriends(String userId, int pageSize, int currentPage) {
+  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(String userId, int pageSize, int currentPage) {
      // count the total item first
       return friendshipRepository.countByUser1IdOrUser2Id(userId, userId)
               .flatMap(count -> {
@@ -104,17 +103,16 @@ public class UserService {
                 int totalPageNum = (int) Math.ceil((double) count / pageSize);
                 response.setTotalPages(totalPageNum);
 
-                int offset = (currentPage - 1) * (currentPage * pageSize);
+                int offset = (currentPage - 1) * (pageSize);
                 int limit = offset + pageSize - 1;
 
                 // fetch user object and convert to Friend dto and set data for the paging response
                 return friendshipRepository.findUserFriendsPaging(userId, offset, limit)
                         .collectList()
                         .doOnNext(item -> log.info("user {} ", item))
-                        .map(userList ->  userList.stream().map(Utils::convertUserToFriend).collect(Collectors.toList()))
+                        .map(userList ->  userList.stream().map(Utils::convertUserToFriendDTO).toList())
                         .map(friendList -> {
-                          response.setFriends(friendList);
-
+                          response.setItems(friendList);
                           return response;
                         });
 
