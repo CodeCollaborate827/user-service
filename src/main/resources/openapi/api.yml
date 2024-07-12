@@ -438,6 +438,10 @@ components:
           type: string
           description: URL to the avatar image of the user sending the request
           example: "https://example.com/john_avatar.jpg"
+        status:
+          type: string
+          description: Status of the request
+          example: "PENDING"
         sentAt:
           type: string
           format: date-time
@@ -446,21 +450,21 @@ components:
     AddFriendRequest:
       type: object
       properties:
-        requestId:
+        userId:
           type: string
           description: Unique identifier for the friend request
           example: "123456789"
     AcceptFriendRequest:
       type: object
       properties:
-        userId:
+        requestId:
           type: string
           description: Unique identifier for the user to add as a friend
           example: "123456789"
     DenyFriendRequest:
       type: object
       properties:
-        userId:
+        requestId:
           type: string
           description: Unique identifier for the user to add as a friend
           example: "123456789"

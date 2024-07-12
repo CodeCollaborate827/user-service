@@ -15,6 +15,7 @@ public interface FriendRequestRepository extends R2dbcRepository<FriendRequest, 
           SELECT 
             fr.id as request_id, 
             fr.created_at as sent_at,
+            fr.status as status,
             u_sender.id AS sender_id,
             u_sender.username as sender_username,
             u_sender.display_name as sender_display_name, 
@@ -27,4 +28,6 @@ public interface FriendRequestRepository extends R2dbcRepository<FriendRequest, 
   Flux<FriendRequestDTO> findFriendRequestOfUserPaging(String userId, int offset, int limit);
 
   Mono<Integer> countByRecipientId(String userId);
+
+  Mono<FriendRequest> findBySenderIdAndRecipientIdAndStatus(String senderId, String recipientId, FriendRequest.Status status);
 }

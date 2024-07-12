@@ -33,12 +33,17 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(Mono<AcceptFriendRequest> acceptFriendRequest, ServerWebExchange exchange) {
-    return UserApiDelegate.super.acceptFriendRequest(acceptFriendRequest, exchange);
+    String currentUser = "test";
+    long requestId = 4;
+    return friendshipService.acceptFriendRequest(currentUser, requestId);
   }
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> denyFriendRequest(Mono<DenyFriendRequest> denyFriendRequest, ServerWebExchange exchange) {
-    return UserApiDelegate.super.denyFriendRequest(denyFriendRequest, exchange);
+    String currentUser = "test";
+    long requestId = 4;
+    
+    return friendshipService.denyFriendRequest(currentUser, requestId);
   }
 
   @Override
@@ -65,7 +70,9 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> sendFriendRequest(Mono<AddFriendRequest> addFriendRequest, ServerWebExchange exchange) {
-    return UserApiDelegate.super.sendFriendRequest(addFriendRequest, exchange);
+    String senderId = "test";
+    String receiverId = "11";
+    return friendshipService.sendFriendRequest(senderId, receiverId);
   }
 
   @Override

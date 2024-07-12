@@ -15,19 +15,29 @@ public interface FriendshipRepository extends R2dbcRepository<FriendShip, Long> 
 
 
   @Query("""
-    SELECT *
-    FROM users u
-    WHERE u.id IN (
-        SELECT
-            CASE
-                WHEN f.user1_id = :userId THEN f.user2_id
-                ELSE f.user1_id
-            END AS id
-        FROM friendships f
-        WHERE f.user1_id = :userId OR f.user2_id = :userId
-    )
-    OFFSET :offset LIMIT :limit;
-    """
+          SELECT *
+          FROM users u
+          WHERE u.id IN (
+              SELECT
+                  CASE
+                      WHEN f.user1_id = :userId THEN f.user2_id
+                      ELSE f.user1_id
+                  END AS id
+              FROM friendships f
+              WHERE f.user1_id = :userId OR f.user2_id = :userId
+          )
+          OFFSET :offset LIMIT :limit;
+          """
   )
   Flux<User> findUserFriendsPaging(String userId, int offset, int limit);
+
+  @Query("""
+              SELECT * 
+              FROM friendships f 
+              WHERE 
+              (f.user1_id = :userId1 AND f.user2_id = :userId2) 
+              OR 
+              (f.user2_id = :userId1 AND f.user1_id = :userId2)
+          """)
+  Mono<FriendShip> findFriendShipBetween2Users(String userId1, String userId2);
 }

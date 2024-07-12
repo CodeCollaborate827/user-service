@@ -19,8 +19,8 @@ public class Utils {
     userProfile.setDisplayName(user.getDisplayName());
     userProfile.setUsername(user.getUsername());
     userProfile.setAvatarUrl(user.getAvatarUrl());
-    userProfile.setCreatedAt(OffsetDateTime.of(user.getCreatedAt(), OffsetDateTime.now().getOffset()));
-    userProfile.setUpdatedAt(OffsetDateTime.of(user.getUpdatedAt(), OffsetDateTime.now().getOffset()));
+    userProfile.setCreatedAt(user.getCreatedAt());
+    userProfile.setUpdatedAt(user.getUpdatedAt());
 
     return userProfile;
   }

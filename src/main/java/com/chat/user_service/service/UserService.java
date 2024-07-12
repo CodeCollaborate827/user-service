@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class UserService {
             .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
   }
 
-  private Mono<User> getUserById(String userId) {
+  public Mono<User> getUserById(String userId) {
     // get the user and the user address (if the user address is not present, use default empty address value)
     return Mono.zip(userRepository.findById(userId), userAddressService.getUserAddress(userId).switchIfEmpty(Mono.just(new UserAddress())))
             .map(t2 -> {
@@ -63,7 +64,7 @@ public class UserService {
               if (Objects.nonNull(request.getDisplayName())) {
                 log.info("Updating user last name for user id: {}", user.getId());
                 user.setDisplayName(request.getDisplayName());
-                user.setUpdatedAt(LocalDateTime.now());
+                user.setUpdatedAt(OffsetDateTime.now());
               }
 
               UserAddress userAddress = user.getAddress();
@@ -78,7 +79,7 @@ public class UserService {
                 if (Objects.nonNull(newAddress.getDistrict())) userAddress.setDistrict(newAddress.getDistrict());
                 if (Objects.nonNull(newAddress.getWard())) userAddress.setWard(newAddress.getWard());
 
-                userAddress.setUpdatedAt(LocalDateTime.now());
+                userAddress.setUpdatedAt(OffsetDateTime.now());
               }
 
               // save the user and the user address

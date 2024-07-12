@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Table(name = "user_address")
 @Data
@@ -23,7 +24,7 @@ public class UserAddress {
   private String ward;
 
   @CreatedDate
-  private LocalDateTime createdAt;
+  private OffsetDateTime createdAt;
   @LastModifiedDate
-  private LocalDateTime updatedAt;
+  private OffsetDateTime updatedAt;
 }
