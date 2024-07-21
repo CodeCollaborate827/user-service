@@ -5,8 +5,10 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
-@Repository
-public interface UserAddressRepository extends R2dbcRepository<UserAddress, Long> {
+import java.util.UUID;
 
-  Mono<UserAddress> findByUserId(String userId);
+@Repository
+public interface UserAddressRepository extends R2dbcRepository<UserAddress, UUID> {
+
+  Mono<UserAddress> findByUserId(UUID userId);
 }

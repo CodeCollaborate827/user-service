@@ -9,12 +9,13 @@ import com.chat.user_service.model.UserProfileResponseAddress;
 import org.springframework.http.ResponseEntity;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 public class Utils {
 
   public static UserProfileResponse convertUserToUserProfile(User user) {
     UserProfileResponse userProfile = new UserProfileResponse();
-    userProfile.setUserId(user.getId());
+    userProfile.setUserId(convertUUIDToString(user.getId()));
     userProfile.setEmail(user.getEmail());
     userProfile.setDisplayName(user.getDisplayName());
     userProfile.setUsername(user.getUsername());
@@ -47,7 +48,7 @@ public class Utils {
 
   public static FriendDTO convertUserToFriendDTO(User user) {
     FriendDTO friend = new FriendDTO();
-    friend.setUserId(user.getId());
+    friend.setUserId(convertUUIDToString(user.getId()));
     friend.setUsername(user.getUsername());
     friend.setDisplayName(user.getDisplayName());
     friend.setAvatarUrl(user.getAvatarUrl());
@@ -56,6 +57,15 @@ public class Utils {
     return friend;
   }
 
+
+  public static UUID convertStringToUUID(String id) {
+    return UUID.fromString(id);
+  }
+
+
+  public static String convertUUIDToString(UUID uuid) {
+    return uuid.toString();
+  }
 
 
 }

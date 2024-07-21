@@ -8,8 +8,10 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @Repository
-public interface FriendRequestRepository extends R2dbcRepository<FriendRequest, Long> {
+public interface FriendRequestRepository extends R2dbcRepository<FriendRequest, UUID> {
 
   @Query("""
           SELECT 
@@ -22,12 +24,15 @@ public interface FriendRequestRepository extends R2dbcRepository<FriendRequest, 
             u_sender.avatar_url as sender_avatar_url
           FROM friend_requests fr
           JOIN users u_sender ON fr.sender_id = u_sender.id
-          WHERE fr.recipient_id = :userId
+          WHERE fr.recipient_id = :userId AND fr.status = :status
+          ORDER BY fr.created_at DESC 
           OFFSET :offset LIMIT :limit
           """)
-  Flux<FriendRequestDTO> findFriendRequestOfUserPaging(String userId, int offset, int limit);
+  Flux<FriendRequestDTO> findFriendRequestOfUserPaging(UUID userId, int offset, int limit, FriendRequest.Status status);
 
-  Mono<Integer> countByRecipientId(String userId);
+  Mono<Integer> countByRecipientIdAndStatus(UUID userId, FriendRequest.Status status);
 
-  Mono<FriendRequest> findBySenderIdAndRecipientIdAndStatus(String senderId, String recipientId, FriendRequest.Status status);
+
+
+  Mono<FriendRequest> findBySenderIdAndRecipientIdAndStatus(UUID senderId, UUID recipientId, FriendRequest.Status status);
 }

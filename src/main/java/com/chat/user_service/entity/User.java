@@ -9,13 +9,14 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Table(name = "users")
 @Data
 public class User {
 
   @Id
-  private String id;
+  private UUID id;
   private String username;
   private String displayName;
   private String avatarUrl;

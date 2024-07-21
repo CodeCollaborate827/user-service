@@ -11,6 +11,7 @@ import com.chat.user_service.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +30,11 @@ public class UserService {
   private final UserRepository userRepository;
   private final UserAddressService userAddressService;
 
-  public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(String userId) {
+  @Value("${test_user_id}")
+  private UUID testUserId;
+
+  public Mono<ResponseEntity<UserProfileResponse>> getUserProfile() {
+    UUID userId = testUserId;
     // get the user
     return getUserById(userId)
             .map(user -> {
@@ -41,7 +47,7 @@ public class UserService {
             .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
   }
 
-  public Mono<User> getUserById(String userId) {
+  public Mono<User> getUserById(UUID userId) {
     // get the user and the user address (if the user address is not present, use default empty address value)
     return Mono.zip(userRepository.findById(userId), userAddressService.getUserAddress(userId).switchIfEmpty(Mono.just(new UserAddress())))
             .map(t2 -> {
@@ -52,7 +58,8 @@ public class UserService {
             });
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest, String userId) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest) {
+    UUID userId = testUserId;
     // TODO: refactor this code
     return getUserById(userId).zipWith(updateProfileRequest)
             .flatMap(t2 -> {
@@ -92,8 +99,9 @@ public class UserService {
   }
 
 
-  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(String userId, int pageSize, int currentPage) {
-     // count the total item first
+  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(int pageSize, int currentPage) {
+    UUID userId = testUserId;
+    // count the total item first
       return friendshipRepository.countByUser1IdOrUser2Id(userId, userId)
               .flatMap(count -> {
                 FriendsListPagingResponse response = new FriendsListPagingResponse();
@@ -105,7 +113,7 @@ public class UserService {
                 response.setTotalPages(totalPageNum);
 
                 int offset = (currentPage - 1) * (pageSize);
-                int limit = offset + pageSize - 1;
+                int limit = pageSize;
 
                 // fetch user object and convert to Friend dto and set data for the paging response
                 return friendshipRepository.findUserFriendsPaging(userId, offset, limit)

@@ -9,14 +9,15 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Table(name = "user_address")
 @Data
 public class UserAddress {
 
   @Id
-  private Long id;
-  private String userId;
+  private UUID id;
+  private UUID userId;
   private String country;
   private String province;
   private String city;

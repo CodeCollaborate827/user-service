@@ -33,52 +33,38 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(Mono<AcceptFriendRequest> acceptFriendRequest, ServerWebExchange exchange) {
-    String currentUser = "test";
-    long requestId = 4;
-    return friendshipService.acceptFriendRequest(currentUser, requestId);
+    return friendshipService.acceptFriendRequest(acceptFriendRequest);
   }
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> denyFriendRequest(Mono<DenyFriendRequest> denyFriendRequest, ServerWebExchange exchange) {
-    String currentUser = "test";
-    long requestId = 4;
-    
-    return friendshipService.denyFriendRequest(currentUser, requestId);
+    return friendshipService.denyFriendRequest(denyFriendRequest);
   }
 
   @Override
-  public Mono<ResponseEntity<FriendRequestListPagingResponse>> getUserFriendRequests(ServerWebExchange exchange) {
-    String userId = "test";
-    int pageSize = 5;
-    int currentPage = 1;
-    return friendshipService.getUserFriendRequests(userId, pageSize, currentPage);
+  public Mono<ResponseEntity<FriendRequestListPagingResponse>> getUserFriendRequests(Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
+    return friendshipService.getUserFriendRequests(pageSize, currentPage);
   }
 
   @Override
-  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(ServerWebExchange exchange) {
-    String userId = "test";
-    int pageSize = 5;
-    int currentPage = 1;
-    return userService.getUserFriends(userId, pageSize, currentPage);
+  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
+    return userService.getUserFriends(pageSize, currentPage);
+
   }
 
   @Override
   public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(ServerWebExchange exchange) {
-    String userId = "test";
-    return userService.getUserProfile(userId);
+    return userService.getUserProfile();
   }
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> sendFriendRequest(Mono<AddFriendRequest> addFriendRequest, ServerWebExchange exchange) {
-    String senderId = "test";
-    String receiverId = "11";
-    return friendshipService.sendFriendRequest(senderId, receiverId);
+    return friendshipService.sendFriendRequest(addFriendRequest);
   }
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest, ServerWebExchange exchange) {
-    String userId = "test";
-    return userService.updateUserProfile(updateProfileRequest, userId);
+    return userService.updateUserProfile(updateProfileRequest);
   }
 
   @Override

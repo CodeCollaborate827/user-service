@@ -1,6 +1,8 @@
 INSERT INTO friendships (user1_id, user2_id)
-VALUES
-('test', '1'),
-('test', '2'),
-('3', 'test'),
-('4', 'test');
+(
+
+    SELECT '4c0670ba-5556-4022-aead-00efe5d07290', id
+    FROM users
+    OFFSET 1 LIMIT 10
+
+)

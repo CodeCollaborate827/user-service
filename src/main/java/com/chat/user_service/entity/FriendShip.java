@@ -8,16 +8,17 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Table(name = "friendships")
 @Data
 public class FriendShip {
 
   @Id
-  private Long id;
+  private UUID id;
 
-  private String user1Id;
-  private String user2Id;
+  private UUID user1Id;
+  private UUID user2Id;
 
   @CreatedDate
   private OffsetDateTime createdAt;

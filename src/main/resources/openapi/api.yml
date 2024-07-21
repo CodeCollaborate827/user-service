@@ -85,6 +85,23 @@ paths:
       operationId: getUserFriends
       tags:
         - user-service
+      parameters:
+        - name: pageSize
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+            format: int32
+        - name: currentPage
+          in: query
+          description: Current page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            format: int32
       responses:
         '200':
           description: User's friend list retrieved successfully
@@ -110,6 +127,23 @@ paths:
       operationId: getUserFriendRequests
       tags:
         - user-service
+      parameters:
+        - name: pageSize
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+            format: int32
+        - name: currentPage
+          in: query
+          description: Current page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            format: int32
       responses:
         '200':
           description: User's friend requests retrieved successfully
@@ -419,9 +453,9 @@ components:
       type: object
       properties:
         requestId:
-          type: long
+          type: string
           description: Unique identifier for the friend request
-          example: 1
+          example: "1"
         senderId:
           type: string
           description: Unique identifier of the user sending the request

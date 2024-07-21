@@ -9,6 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Table(name = "friend_requests")
 @Data
@@ -19,10 +20,10 @@ public class FriendRequest {
   }
 
   @Id
-  private Long id;
+  private UUID id;
 
-  private String senderId;
-  private String recipientId;
+  private UUID senderId;
+  private UUID recipientId;
   private Status status;
 
   @Transient

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @Service
 public class UserAddressService {
 
@@ -13,7 +15,7 @@ public class UserAddressService {
   private UserAddressRepository userAddressRepository;
 
 
-  public Mono<UserAddress> getUserAddress(String userId) {
+  public Mono<UserAddress> getUserAddress(UUID userId) {
     return userAddressRepository.findByUserId(userId);
   }
 
