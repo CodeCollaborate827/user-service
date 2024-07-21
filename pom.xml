@@ -162,8 +162,8 @@
                                 ${project.basedir}/src/main/resources/openapi/api.yml
                             </inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>com.chat.user_service.server.api</apiPackage>
-                            <modelPackage>com.chat.user_service.server.model</modelPackage>
+                            <apiPackage>com.chat.user_service.api</apiPackage>
+                            <modelPackage>com.chat.user_service.model</modelPackage>
                             <supportingFilesToGenerate>
                                 ApiUtil.java
                             </supportingFilesToGenerate>

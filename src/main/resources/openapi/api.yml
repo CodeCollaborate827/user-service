@@ -7,12 +7,9 @@ info:
 servers:
   - url: http://localhost:8080/api
     description: Local Server
-
-
-
-
-
-
+tags:
+  - name: user-service
+    description: Operations related to user profile
 
 paths:
   /user/profile:
@@ -20,28 +17,19 @@ paths:
       summary: Get user profile information
       operationId: getUserProfile
       tags:
-        - profile
+      - user-service
       responses:
         '200':
           description: User profile information retrieved successfully
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CommonResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "User profile information retrieved successfully"
-                      data:
-                        $ref: '#/components/schemas/UserProfile'
+                $ref: '#/components/schemas/UserProfileResponse'
     put:
       summary: Update user profile information
       operationId: updateUserProfile
       tags:
-        - profile
+      - user-service
       requestBody:
         required: true
         content:
@@ -54,14 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CommonResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "User profile information retrieved successfully"
+                $ref: '#/components/schemas/CommonSuccessResponse'
         '500':
           description: Internal Server Error
           content:
@@ -73,7 +54,7 @@ paths:
       summary: Update user profile image
       operationId: updateUserProfileImage
       tags:
-        - profile
+      - user-service
       requestBody:
         required: true
         content:
@@ -91,14 +72,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CommonResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "User profile image updated successfully"
+                $ref: '#/components/schemas/CommonSuccessResponse'
         '500':
           description: Internal Server Error
           content:
@@ -110,29 +84,37 @@ paths:
       summary: Get user's friend list
       operationId: getUserFriends
       tags:
-        - friends
+        - user-service
+      parameters:
+        - name: pageSize
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+            format: int32
+        - name: currentPage
+          in: query
+          description: Current page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            format: int32
       responses:
         '200':
           description: User's friend list retrieved successfully
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/PageResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "Get user's friend list successfully"
-                      data:
-                        type: object
-                        properties:
-                          items:
-                            type: array
-                            items:
-                              $ref: '#/components/schemas/Friend'
-
+                $ref: '#/components/schemas/FriendsListPagingResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorResponse'
         '500':
           description: Internal Server Error
           content:
@@ -144,40 +126,49 @@ paths:
       summary: Get user's friend requests
       operationId: getUserFriendRequests
       tags:
-        - friends
+        - user-service
+      parameters:
+        - name: pageSize
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+            format: int32
+        - name: currentPage
+          in: query
+          description: Current page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            format: int32
       responses:
         '200':
           description: User's friend requests retrieved successfully
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CommonResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "User profile image updated successfully"
-                      data:
-                        type: object
-                        properties:
-                          items:
-                            type: array
-                            items:
-                              $ref: '#/components/schemas/FriendRequest'
+                $ref: '#/components/schemas/FriendRequestListPagingResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorResponse'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/500InternalError'
+                $ref: '#/components/schemas/500InternalError'
   /user/friends/add-friend:
     post:
       summary: Send a friend request
       operationId: sendFriendRequest
       tags:
-        - friends
+        - user-service
       requestBody:
         required: true
         content:
@@ -191,14 +182,13 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CommonResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "Friend request sent successfully"
+                $ref: '#/components/schemas/CommonSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorResponse'
         '500':
           description: Internal Server Error
           content:
@@ -210,27 +200,26 @@ paths:
       summary: Accept a friend request
       operationId: acceptFriendRequest
       tags:
-        - friends
+        - user-service
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FriendRequestId'
+              $ref: '#/components/schemas/AcceptFriendRequest'
       responses:
         '200':
           description: Friend request accepted successfully
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CommonResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "Friend request accepted successfully"
+                $ref: '#/components/schemas/CommonSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorResponse'
         '500':
           description: Internal Server Error
           content:
@@ -242,36 +231,36 @@ paths:
       summary: Deny a friend request
       operationId: denyFriendRequest
       tags:
-        - friends
+        - user-service
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FriendRequestId'
+              $ref: '#/components/schemas/DenyFriendRequest'
       responses:
         '200':
           description: Friend request denied successfully
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/CommonResponse'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                        description: Custom success message
-                        example: "Friend request denied successfully"
+                $ref: '#/components/schemas/CommonSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorResponse'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/500InternalError'
+
 components:
   schemas:
-    UserProfile:
+    UserProfileResponse:
       type: object
       properties:
         userId:
@@ -298,12 +287,12 @@ components:
           type: string
           format: date-time
           description: Timestamp of when the user profile was created
-          example: "2024-07-01T10:00:00Z"
+          example: "2024-07-12T09:02:48.597888600+07:00"
         updatedAt:
           type: string
           format: date-time
           description: Timestamp of the last update to the user profile
-          example: "2024-07-01T15:30:00Z"
+          example: "2024-07-12T09:02:48.597888600+07:00"
         address:
           type: object
           description: User's address details
@@ -328,6 +317,72 @@ components:
               type: string
               description: Ward where the user resides
               example: "Nghia Tan"
+    FriendsListPagingResponse:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          description: Total number of items in the full list
+          example: 100
+        pageSize:
+          type: integer
+          description: Number of items per page
+          example: 5
+        currentPage:
+          type: integer
+          description: Current page number
+          example: 1
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 20
+        items:
+          type: array
+          description: List of friends on the current page
+          items:
+            $ref: '#/components/schemas/FriendDTO'
+    FriendRequestListPagingResponse:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          description: Total number of friend requests
+          example: 50
+        pageSize:
+          type: integer
+          description: Number of friend requests on the each page
+          example: 5
+        currentPage:
+          type: integer
+          description: Current page number
+          example: 1
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 10
+        items:
+          type: array
+          description: List of friend requests on the current page
+          items:
+            $ref: '#/components/schemas/FriendRequestDTO'
+    CommonSuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message
+          example: "Operation Success"
+    CommonErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Code of the error
+          example: "USER12"
+        message:
+          type: string
+          description: Response message
+          example: "Operation Failed"
     UpdateProfileRequest:
       type: object
       properties:
@@ -359,48 +414,6 @@ components:
               type: string
               description: Ward where the user resides
               example: "Nghia Tan"
-    CommonResponse:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          nullable: true
-          description: Error code for the response, null if the operation is successful
-          example: null
-        message:
-          type: string
-          description: Response message
-          example: "Operation successful"
-        data:
-          type: object
-          nullable: true
-          description: Additional data for the response
-    PageResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: Custom success message
-          example: "Get page information successfully"
-        data:
-            type: object
-            properties:
-                totalItems:
-                  type: integer
-                  description: Current page number
-                  example: 100
-                pageSize:
-                  type: integer
-                  description: Number of items per page
-                  example: 5
-                currentPage:
-                  type: integer
-                  description: Total number of items
-                  example: 1
-                totalPages:
-                  type: integer
-                  description: Total number of pages
-                  example: 10
     500InternalError:
       type: object
       description: Internal Server Error Occured
@@ -413,7 +426,7 @@ components:
           type: string
           description: Internal Server Error has Occured
           example: Internal Server Error has Occured
-    Friend:
+    FriendDTO:
       type: object
       properties:
         userId:
@@ -436,45 +449,56 @@ components:
           type: string
           description: Email address of the user
           example: "johndoe@example.com"
-    FriendRequest:
+    FriendRequestDTO:
       type: object
       properties:
         requestId:
           type: string
           description: Unique identifier for the friend request
-          example: "123456789"
+          example: "1"
         senderId:
           type: string
-          description: Unique identifier for the user who sent the friend request
-          example: "890123456"
+          description: Unique identifier of the user sending the request
+          example: "789012345"
         senderUsername:
           type: string
-          description: Username of the user who sent the friend request
-          example: "jane_doe"
+          description: Username of the user sending the request
+          example: "john_doe"
         senderDisplayName:
           type: string
-          description: Full name of the user who sent the friend request
-          example: "Jane Doe"
+          description: Full name of the user sending the request
+          example: "John Doe"
         senderAvatarUrl:
           type: string
-          description: URL to the avatar image of the user who sent the friend request
-          example: "https://example.com/avatar.jpg"
+          description: URL to the avatar image of the user sending the request
+          example: "https://example.com/john_avatar.jpg"
+        status:
+          type: string
+          description: Status of the request
+          example: "PENDING"
         sentAt:
           type: string
           format: date-time
-          description: Timestamp of when the friend request was sent
-          example: "2024-07-01T10:00:00Z"
-    FriendRequestId:
-      type: object
-      properties:
-        requestId:
-          type: string
-          description: Unique identifier for the friend request
-          example: "123456789"
+          description: Timestamp when the friend request was sent
+          example: "2024-07-12T09:02:48.597888600+07:00"
     AddFriendRequest:
       type: object
       properties:
         userId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "123456789"
+    AcceptFriendRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the user to add as a friend
+          example: "123456789"
+    DenyFriendRequest:
+      type: object
+      properties:
+        requestId:
           type: string
           description: Unique identifier for the user to add as a friend
           example: "123456789"

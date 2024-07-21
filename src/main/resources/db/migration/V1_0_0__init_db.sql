@@ -1,45 +1,46 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create the users table
 CREATE TABLE IF NOT EXISTS users (
-                       id VARCHAR(255) PRIMARY KEY,
-                       username VARCHAR(255) NOT NULL UNIQUE,
-                       displayName VARCHAR(255),
-                       email VARCHAR(255) NOT NULL UNIQUE,
-                       createdAt TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updatedAt TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
+   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+   username VARCHAR(255) NOT NULL UNIQUE,
+   display_name VARCHAR(255),
+   avatar_url VARCHAR(255),
+   email VARCHAR(255) NOT NULL UNIQUE,
+   created_at TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS  user_address (
-    id        SERIAL PRIMARY KEY,
-    user_id   VARCHAR(255),
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id  UUID,
     country   VARCHAR(255),
+    province VARCHAR(255),
     city      VARCHAR(255),
     district  VARCHAR(255),
     ward      VARCHAR(255),
-    createdAt TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Create the friendships table
 CREATE TABLE IF NOT EXISTS friendships (
-    id SERIAL PRIMARY KEY,
-    user1_id VARCHAR(255),
-    user2_id VARCHAR(255),
-    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user1_id UUID,
+    user2_id UUID,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE
-    );
+);
 
 
 CREATE TABLE IF NOT EXISTS  friend_requests (
-    id SERIAL PRIMARY KEY,
-    sender_id VARCHAR(255),
-    recipient_id VARCHAR(255),
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sender_id UUID,
+    recipient_id UUID,
     status VARCHAR(50),
-    createdAt TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    sender_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
-    recipient_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
