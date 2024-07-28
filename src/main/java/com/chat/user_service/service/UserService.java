@@ -38,12 +38,18 @@ public class UserService {
     // get the user
     return getUserById(userId)
             .map(user -> {
-              UserProfileResponse userProfileResponse = Utils.convertUserToUserProfile(user);
-              UserProfileResponseAddress userProfileResponseAddress = Utils.convertUserAddressToUserProfileAddress(user.getAddress());
+              UserProfileResponseData userProfileResponse = Utils.convertUserToUserProfile(user);
+              UserProfileResponseDataAddress userProfileResponseAddress = Utils.convertUserAddressToUserProfileAddress(user.getAddress());
               userProfileResponse.setAddress(userProfileResponseAddress);
               return userProfileResponse;
             })
-            .map(ResponseEntity.ok()::body)
+            .map(data -> {
+              UserProfileResponse response = new UserProfileResponse();
+              response.setData(data);
+              response.setMessage("Get user profile successfully"); // TODO: move it to env constant
+              response.setRequestId(UUID.randomUUID().toString()); // TODO: get the id from header
+              return ResponseEntity.ok(response);
+            })
             .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
   }
 
@@ -76,7 +82,7 @@ public class UserService {
 
               UserAddress userAddress = user.getAddress();
               if (Objects.nonNull(request.getAddress())) {
-                UserProfileResponseAddress newAddress = request.getAddress();
+                UserProfileResponseDataAddress newAddress = request.getAddress();
                 log.info("Updating user address for user id: {}", user.getId());
 
                 // update the user address
@@ -104,7 +110,7 @@ public class UserService {
     // count the total item first
       return friendshipRepository.countByUser1IdOrUser2Id(userId, userId)
               .flatMap(count -> {
-                FriendsListPagingResponse response = new FriendsListPagingResponse();
+                FriendsListPagingResponseData response = new FriendsListPagingResponseData();
                 response.setTotalItems(count);
                 response.setPageSize(pageSize);
                 response.currentPage(currentPage);
@@ -126,7 +132,14 @@ public class UserService {
                         });
 
               })
-              .map(ResponseEntity.ok()::body);
+              .map(data -> {
+                FriendsListPagingResponse response = new FriendsListPagingResponse();
+                response.setData(data);
+                response.setMessage("Get user profile successfully"); // TODO: move it to env constant
+                response.setRequestId(UUID.randomUUID().toString()); // TODO: get the id from header
+
+                return ResponseEntity.ok(response);
+              });
 
   }
 }
