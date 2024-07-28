@@ -1,6 +1,6 @@
 package com.chat.user_service.service;
 
-import com.chat.user_service.entity.FriendRequest;
+import com.chat.user_service.entity .FriendRequest;
 import com.chat.user_service.entity.FriendShip;
 import com.chat.user_service.exception.ApplicationException;
 import com.chat.user_service.exception.ErrorCode;
@@ -40,13 +40,13 @@ public class FriendshipService {
             .flatMap(count -> {
               log.info("count: {}", count);
               //TODO: this is similar to getFriends, try to generalize it
-              FriendRequestListPagingResponse response = new FriendRequestListPagingResponse();
-              response.setTotalItems(count);
-              response.setCurrentPage(currentPage);
-              response.setPageSize(pageSize);
+              FriendRequestListPagingResponseData friendRequestData = new FriendRequestListPagingResponseData();
+              friendRequestData.setTotalItems(count);
+              friendRequestData.setCurrentPage(currentPage);
+              friendRequestData.setPageSize(pageSize);
 
               int totalPages = (int) Math.ceil((double) count / pageSize);
-              response.setTotalPages(totalPages);
+              friendRequestData.setTotalPages(totalPages);
 
               int offset = (currentPage - 1) * pageSize;
               int limit =  pageSize;
@@ -54,10 +54,17 @@ public class FriendshipService {
               return friendRequestRepository.findFriendRequestOfUserPaging(userId, offset, limit, FriendRequest.Status.PENDING)
                       .collectList()
                       .map(friendRequestDTOList -> {
-                        response.setItems(friendRequestDTOList);
-                        return response;
+                        friendRequestData.setItems(friendRequestDTOList);
+                        return friendRequestData;
                       })
-                      .map(ResponseEntity.ok()::body);
+                      .map(data -> {
+                        FriendRequestListPagingResponse response = new FriendRequestListPagingResponse();
+                        response.setData(data);
+                        response.setMessage("Get friend requests successfully"); // TODO: move it to constant
+                        response.setRequestId(UUID.randomUUID().toString()); //  TODO: get the id from header
+                        return ResponseEntity.ok(response);
+
+                      });
             });
   }
 

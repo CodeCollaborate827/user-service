@@ -263,115 +263,221 @@ components:
     UserProfileResponse:
       type: object
       properties:
-        userId:
+        errorCode:
           type: string
-          description: Unique identifier for the user
-          example: "123456789"
-        username:
-          type: string
-          description: Username chosen by the user
-          example: "john_doe"
-        displayName:
-          type: string
-          description: Full name of the user
-          example: "John Doe"
-        email:
-          type: string
-          description: Email address of the user
-          example: "john.doe@example.com"
-        avatarUrl:
-          type: string
-          description: URL to the user's avatar image
-          example: "https://example.com/avatar.jpg"
-        createdAt:
-          type: string
-          format: date-time
-          description: Timestamp of when the user profile was created
-          example: "2024-07-12T09:02:48.597888600+07:00"
-        updatedAt:
-          type: string
-          format: date-time
-          description: Timestamp of the last update to the user profile
-          example: "2024-07-12T09:02:48.597888600+07:00"
-        address:
-          type: object
-          description: User's address details
-          properties:
-            country:
-              type: string
-              description: Country where the user resides
-              example: "Vietnam"
-            province:
-              type: string
-              description: Province where the user resides
-              example: "Hanoi"
-            city:
-              type: string
-              description: City where the user resides
-              example: "Hanoi"
-            district:
-              type: string
-              description: District where the user resides
-              example: "Cau Giay"
-            ward:
-              type: string
-              description: Ward where the user resides
-              example: "Nghia Tan"
-    FriendsListPagingResponse:
-      type: object
-      properties:
-        totalItems:
-          type: integer
-          description: Total number of items in the full list
-          example: 100
-        pageSize:
-          type: integer
-          description: Number of items per page
-          example: 5
-        currentPage:
-          type: integer
-          description: Current page number
-          example: 1
-        totalPages:
-          type: integer
-          description: Total number of pages
-          example: 20
-        items:
-          type: array
-          description: List of friends on the current page
-          items:
-            $ref: '#/components/schemas/FriendDTO'
-    FriendRequestListPagingResponse:
-      type: object
-      properties:
-        totalItems:
-          type: integer
-          description: Total number of friend requests
-          example: 50
-        pageSize:
-          type: integer
-          description: Number of friend requests on the each page
-          example: 5
-        currentPage:
-          type: integer
-          description: Current page number
-          example: 1
-        totalPages:
-          type: integer
-          description: Total number of pages
-          example: 10
-        items:
-          type: array
-          description: List of friend requests on the current page
-          items:
-            $ref: '#/components/schemas/FriendRequestDTO'
-    CommonSuccessResponse:
-      type: object
-      properties:
+          description: Code of the error
+          example: "USER12"
         message:
           type: string
           description: Response message
           example: "Operation Success"
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "req11921"
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+              description: Unique identifier for the user
+              example: "123456789"
+            username:
+              type: string
+              description: Username chosen by the user
+              example: "john_doe"
+            displayName:
+              type: string
+              description: Full name of the user
+              example: "John Doe"
+            email:
+              type: string
+              description: Email address of the user
+              example: "john.doe@example.com"
+            avatarUrl:
+              type: string
+              description: URL to the user's avatar image
+              example: "https://example.com/avatar.jpg"
+            createdAt:
+              type: string
+              format: date-time
+              description: Timestamp of when the user profile was created
+              example: "2024-07-12T09:02:48.597888600+07:00"
+            updatedAt:
+              type: string
+              format: date-time
+              description: Timestamp of the last update to the user profile
+              example: "2024-07-12T09:02:48.597888600+07:00"
+            address:
+              type: object
+              description: User's address details
+              properties:
+                country:
+                  type: string
+                  description: Country where the user resides
+                  example: "Vietnam"
+                province:
+                  type: string
+                  description: Province where the user resides
+                  example: "Hanoi"
+                city:
+                  type: string
+                  description: City where the user resides
+                  example: "Hanoi"
+                district:
+                  type: string
+                  description: District where the user resides
+                  example: "Cau Giay"
+                ward:
+                  type: string
+                  description: Ward where the user resides
+                  example: "Nghia Tan"
+    FriendsListPagingResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Code of the error
+          example: "USER12"
+        message:
+          type: string
+          description: Response message
+          example: "Operation Success"
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "req11921"
+        data:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+              description: Total number of items in the full list
+              example: 100
+            pageSize:
+              type: integer
+              description: Number of items per page
+              example: 5
+            currentPage:
+              type: integer
+              description: Current page number
+              example: 1
+            totalPages:
+              type: integer
+              description: Total number of pages
+              example: 20
+            items:
+              type: array
+              description: List of friends on the current page
+              items:
+                $ref: '#/components/schemas/FriendDTO'
+    FriendRequestListPagingResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Code of the error
+          example: "USER12"
+        message:
+          type: string
+          description: Response message
+          example: "Operation Success"
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "req11921"
+        data:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+              description: Total number of friend requests
+              example: 50
+            pageSize:
+              type: integer
+              description: Number of friend requests on the each page
+              example: 5
+            currentPage:
+              type: integer
+              description: Current page number
+              example: 1
+            totalPages:
+              type: integer
+              description: Total number of pages
+              example: 10
+            items:
+              type: array
+              description: List of friend requests on the current page
+              items:
+                $ref: '#/components/schemas/FriendRequestDTO'
+    FriendRequestDTO:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "1"
+        senderId:
+          type: string
+          description: Unique identifier of the user sending the request
+          example: "789012345"
+        senderUsername:
+          type: string
+          description: Username of the user sending the request
+          example: "john_doe"
+        senderDisplayName:
+          type: string
+          description: Full name of the user sending the request
+          example: "John Doe"
+        senderAvatarUrl:
+          type: string
+          description: URL to the avatar image of the user sending the request
+          example: "https://example.com/john_avatar.jpg"
+        status:
+          type: string
+          description: Status of the request
+          example: "PENDING"
+        sentAt:
+          type: string
+          format: date-time
+          description: Timestamp when the friend request was sent
+          example: "2024-07-12T09:02:48.597888600+07:00"
+    AddFriendRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "123456789"
+    AcceptFriendRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the user to add as a friend
+          example: "123456789"
+    DenyFriendRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the user to add as a friend
+          example: "123456789"
+    CommonSuccessResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Code of the error
+          example: "USER12"
+        message:
+          type: string
+          description: Response message
+          example: "Operation Success"
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "req11921"
     CommonErrorResponse:
       type: object
       properties:
@@ -382,7 +488,11 @@ components:
         message:
           type: string
           description: Response message
-          example: "Operation Failed"
+          example: "Operation Success"
+        requestId:
+          type: string
+          description: Unique identifier for the friend request
+          example: "req11921"
     UpdateProfileRequest:
       type: object
       properties:
@@ -449,56 +559,3 @@ components:
           type: string
           description: Email address of the user
           example: "johndoe@example.com"
-    FriendRequestDTO:
-      type: object
-      properties:
-        requestId:
-          type: string
-          description: Unique identifier for the friend request
-          example: "1"
-        senderId:
-          type: string
-          description: Unique identifier of the user sending the request
-          example: "789012345"
-        senderUsername:
-          type: string
-          description: Username of the user sending the request
-          example: "john_doe"
-        senderDisplayName:
-          type: string
-          description: Full name of the user sending the request
-          example: "John Doe"
-        senderAvatarUrl:
-          type: string
-          description: URL to the avatar image of the user sending the request
-          example: "https://example.com/john_avatar.jpg"
-        status:
-          type: string
-          description: Status of the request
-          example: "PENDING"
-        sentAt:
-          type: string
-          format: date-time
-          description: Timestamp when the friend request was sent
-          example: "2024-07-12T09:02:48.597888600+07:00"
-    AddFriendRequest:
-      type: object
-      properties:
-        userId:
-          type: string
-          description: Unique identifier for the friend request
-          example: "123456789"
-    AcceptFriendRequest:
-      type: object
-      properties:
-        requestId:
-          type: string
-          description: Unique identifier for the user to add as a friend
-          example: "123456789"
-    DenyFriendRequest:
-      type: object
-      properties:
-        requestId:
-          type: string
-          description: Unique identifier for the user to add as a friend
-          example: "123456789"
