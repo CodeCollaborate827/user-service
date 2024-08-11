@@ -35,10 +35,10 @@ public class Utils {
     return userProfileResponseAddress;
   }
 
-  public static ResponseEntity<CommonSuccessResponse> createSuccessResponse(String message) {
+  public static ResponseEntity<CommonSuccessResponse> createSuccessResponse(String message, String requestId) {
     CommonSuccessResponse response = new CommonSuccessResponse();
     response.setMessage(message);
-    response.setRequestId(UUID.randomUUID().toString()); //TODO: get it from the request header
+    response.setRequestId(requestId); //TODO: get it from the request header
 
 
     return ResponseEntity.ok(response);

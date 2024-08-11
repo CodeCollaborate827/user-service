@@ -10,7 +10,6 @@ import com.chat.user_service.repository.UserRepository;
 import com.chat.user_service.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
@@ -18,11 +17,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -35,8 +32,7 @@ public class UserService {
   @Value("${test_user_id}")
   private UUID testUserId;
 
-  public Mono<ResponseEntity<UserProfileResponse>> getUserProfile() {
-    UUID userId = testUserId;
+  public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(UUID userId, String requestId) {
     // get the user
     return getUserById(userId)
             .map(user -> {
@@ -49,7 +45,7 @@ public class UserService {
               UserProfileResponse response = new UserProfileResponse();
               response.setData(data);
               response.setMessage("Get user profile successfully"); // TODO: move it to env constant
-              response.setRequestId(UUID.randomUUID().toString()); // TODO: get the id from header
+              response.setRequestId(requestId);
               return ResponseEntity.ok(response);
             })
             .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
@@ -66,8 +62,7 @@ public class UserService {
             });
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest) {
-    UUID userId = testUserId;
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(UUID userId, String requestId, Mono<UpdateProfileRequest> updateProfileRequest) {
     // TODO: refactor this code
     return getUserById(userId).zipWith(updateProfileRequest)
             .flatMap(t2 -> {
@@ -102,13 +97,13 @@ public class UserService {
                       .then(userAddressService.save(userAddress));
 
             })
-            .then(Mono.just(Utils.createSuccessResponse("User profile updated successfully")))
+            .then(Mono.just(Utils.createSuccessResponse("User profile updated successfully", requestId)))
             .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
   }
 
 
-  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(int pageSize, int currentPage) {
-    UUID userId = testUserId;
+  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(UUID userId, String requestId, int pageSize, int currentPage) {
+
     // count the total item first
       return friendshipRepository.countByUser1IdOrUser2Id(userId, userId)
               .flatMap(count -> {
@@ -138,16 +133,15 @@ public class UserService {
                 FriendsListPagingResponse response = new FriendsListPagingResponse();
                 response.setData(data);
                 response.setMessage("Get user profile successfully"); // TODO: move it to env constant
-                response.setRequestId(UUID.randomUUID().toString()); // TODO: get the id from header
+                response.setRequestId(requestId);
 
                 return ResponseEntity.ok(response);
               });
 
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(Flux<Part> avatar) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(UUID userId, String requestId, Flux<Part> avatar) {
 
-    UUID userId = testUserId;
     log.info("Updating user profile image for user id: {}", userId);
 
     return avatar.doOnNext(part -> {
@@ -162,7 +156,7 @@ public class UserService {
         log.info("bytes:{}", bytes);
         return bytes;
       }).subscribe();
-    }).then(Mono.just(Utils.createSuccessResponse("OK")));
+    }).then(Mono.just(Utils.createSuccessResponse("OK", requestId)));
 
   }
 }
