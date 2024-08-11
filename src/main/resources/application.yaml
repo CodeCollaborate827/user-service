@@ -25,8 +25,12 @@ server:
 # test_user_id: 4c0670ba-5556-4022-aead-00efe5d07290
 test_user_id: 70c7ee0c-4dca-443f-a41f-c9c8caf10428
 
+http:
+
 
 eureka:
   client:
-    service-url:
+    serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true

@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -140,6 +142,27 @@ public class UserService {
 
                 return ResponseEntity.ok(response);
               });
+
+  }
+
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(Flux<Part> avatar) {
+
+    UUID userId = testUserId;
+    log.info("Updating user profile image for user id: {}", userId);
+
+    return avatar.doOnNext(part -> {
+      // save the image to the file system
+      log.info("part:{}", part.content());
+      part.content().map(dataBuffer -> {
+        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+        dataBuffer.read(bytes);
+        return bytes;
+      }).map(bytes -> {
+        // save the image to the file system
+        log.info("bytes:{}", bytes);
+        return bytes;
+      }).subscribe();
+    }).then(Mono.just(Utils.createSuccessResponse("OK")));
 
   }
 }

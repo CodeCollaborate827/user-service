@@ -6,6 +6,7 @@ import com.chat.user_service.model.*;
 import com.chat.user_service.service.FriendshipService;
 import com.chat.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserApiDelegatorImpl implements UserApiDelegate {
 
   private final UserService userService;
@@ -54,6 +56,8 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(ServerWebExchange exchange) {
+    log.info("userId: {}", exchange.getRequest().getHeaders().get("userId").get(0));
+    log.info("requestId: {}", exchange.getRequest().getHeaders().get("requestId").get(0));
     return userService.getUserProfile();
   }
 
@@ -69,6 +73,7 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(Flux<Part> avatar, ServerWebExchange exchange) {
-    return UserApiDelegate.super.updateUserProfileImage(avatar, exchange);
+
+    return userService.updateUserProfileImage(avatar);
   }
 }
