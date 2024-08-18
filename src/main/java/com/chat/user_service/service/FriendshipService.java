@@ -30,11 +30,9 @@ public class FriendshipService {
 
   private final UserService userService;
 
-  @Value("${test_user_id}")
-  private UUID userId;
 
-  public Mono<ResponseEntity<FriendRequestListPagingResponse>> getUserFriendRequests(int pageSize, int currentPage) {
-    log.info("Fetching friend requests of user: {}", userId);
+  public Mono<ResponseEntity<FriendRequestListPagingResponse>> getUserFriendRequests(UUID userId, String requestId, int pageSize, int currentPage) {
+
     //TODO: check user exists,
     return friendRequestRepository.countByRecipientIdAndStatus(userId, FriendRequest.Status.PENDING)
             .flatMap(count -> {
@@ -61,15 +59,14 @@ public class FriendshipService {
                         FriendRequestListPagingResponse response = new FriendRequestListPagingResponse();
                         response.setData(data);
                         response.setMessage("Get friend requests successfully"); // TODO: move it to constant
-                        response.setRequestId(UUID.randomUUID().toString()); //  TODO: get the id from header
+                        response.setRequestId(requestId);
                         return ResponseEntity.ok(response);
 
                       });
             });
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> sendFriendRequest(Mono<AddFriendRequest> addFriendRequest) {
-    UUID senderId = userId;
+  public Mono<ResponseEntity<CommonSuccessResponse>> sendFriendRequest(UUID senderId, String requestId, Mono<AddFriendRequest> addFriendRequest) {
     // check recipient exists
     //TODO: please clean this code
     return addFriendRequest.flatMap(request -> userService.getUserById(Utils.convertStringToUUID(request.getUserId())))
@@ -99,13 +96,13 @@ public class FriendshipService {
                         friendRequestFromRecipient.setStatus(FriendRequest.Status.ACCEPTED);
                         friendRequestFromRecipient.setUpdatedAt(OffsetDateTime.now());
                         return friendRequestRepository.save(friendRequestFromRecipient)
-                                .then(Mono.just(Utils.createSuccessResponse("Accepted friend request successfully")));
+                                .then(Mono.just(Utils.createSuccessResponse("Accepted friend request successfully", requestId)));
                       })
                       // when there is no another request from the recipient to the sender
                       .switchIfEmpty(
                               Mono.just(createNewFriendRequest(senderId, recipient.getId()))
                                       .flatMap(friendRequestRepository::save)
-                                      .then(Mono.just(Utils.createSuccessResponse("Friend request sent successfully")))
+                                      .then(Mono.just(Utils.createSuccessResponse("Friend request sent successfully", requestId)))
                       );
 
                       });
@@ -125,8 +122,7 @@ public class FriendshipService {
     return friendRequest;
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(Mono<AcceptFriendRequest> acceptFriendRequest) {
-    UUID recipientId = userId;
+  public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(UUID recipientId, String requestId, Mono<AcceptFriendRequest> acceptFriendRequest) {
 
     return acceptFriendRequest.flatMap(request -> friendRequestRepository.findById(UUID.fromString(request.getRequestId())))
             .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR4)))
@@ -141,7 +137,7 @@ public class FriendshipService {
               return friendRequestRepository.save(friendRequest)
                       .then(Mono.just(createNewFriendShip(friendRequest.getSenderId(), recipientId)))
                       .flatMap(friendshipRepository::save)
-                      .map(friendship -> Utils.createSuccessResponse("Accepted friend request successfully"));
+                      .map(friendship -> Utils.createSuccessResponse("Accepted friend request successfully", requestId));
             });
 
 
@@ -174,8 +170,7 @@ public class FriendshipService {
     return friendShip;
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> denyFriendRequest(Mono<DenyFriendRequest> DenyFriendRequest) {
-    UUID currentUserId = userId;
+  public Mono<ResponseEntity<CommonSuccessResponse>> denyFriendRequest(UUID currentUserId, String requestId, Mono<DenyFriendRequest> DenyFriendRequest) {
 
     return DenyFriendRequest.flatMap(request -> friendRequestRepository.findById(UUID.fromString(request.getRequestId())))
             .flatMap(friendRequest -> {
@@ -187,7 +182,7 @@ public class FriendshipService {
               friendRequest.setStatus(FriendRequest.Status.DENIED);
 
               return friendRequestRepository.save(friendRequest)
-                      .then(Mono.just(Utils.createSuccessResponse("Denied friend request successfully!")));
+                      .then(Mono.just(Utils.createSuccessResponse("Denied friend request successfully!", requestId)));
             });
   }
 }
