@@ -20,6 +20,7 @@ public class UserRegistrationEvent {
   private String city;
   private String dateOfBirth;
   private Gender gender;
+  private String avatar;
 
   public enum Gender {
     male,

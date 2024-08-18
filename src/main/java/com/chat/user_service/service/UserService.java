@@ -29,8 +29,17 @@ public class UserService {
   private final UserRepository userRepository;
   private final UserAddressService userAddressService;
 
-  @Value("${test_user_id}")
-  private UUID testUserId;
+
+
+  public Mono<User> saveUser(User user) {
+    UserAddress address = user.getAddress();
+    log.info("Saving user: {}", user);
+    return userRepository.saveUserWithId(user)
+            .then(Mono.defer(() -> {
+              return userAddressService.save(address)
+                      .thenReturn(user);
+            }));
+  }
 
   public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(UUID userId, String requestId) {
     // get the user
@@ -57,6 +66,10 @@ public class UserService {
             .map(t2 -> {
               User user = t2.getT1();
               UserAddress userAddress = t2.getT2();
+
+              log.info("User address: {}", t2.getT2());
+
+
               user.setAddress(userAddress);
               return user;
             });

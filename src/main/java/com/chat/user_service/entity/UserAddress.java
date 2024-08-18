@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,8 @@ public class UserAddress {
 
   @Id
   private UUID id;
+
+  @Column("user_id")
   private UUID userId;
   private String country;
   private String province;
@@ -25,7 +28,9 @@ public class UserAddress {
   private String ward;
 
   @CreatedDate
+  @Column("created_at")
   private OffsetDateTime createdAt;
   @LastModifiedDate
+  @Column("updated_at")
   private OffsetDateTime updatedAt;
 }

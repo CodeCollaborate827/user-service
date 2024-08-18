@@ -300,12 +300,10 @@ components:
               example: "https://example.com/avatar.jpg"
             createdAt:
               type: string
-              format: date-time
               description: Timestamp of when the user profile was created
               example: "2024-07-12T09:02:48.597888600+07:00"
             updatedAt:
               type: string
-              format: date-time
               description: Timestamp of the last update to the user profile
               example: "2024-07-12T09:02:48.597888600+07:00"
             address:

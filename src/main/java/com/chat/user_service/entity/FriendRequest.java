@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
@@ -22,7 +23,9 @@ public class FriendRequest {
   @Id
   private UUID id;
 
+  @Column("sender_id")
   private UUID senderId;
+  @Column("recipient_id")
   private UUID recipientId;
   private Status status;
 
@@ -32,7 +35,9 @@ public class FriendRequest {
   private User recipient;
 
   @CreatedDate
+  @Column("created_at")
   private OffsetDateTime createdAt;
   @LastModifiedDate
+  @Column("updated_at")
   private OffsetDateTime updatedAt;
 }

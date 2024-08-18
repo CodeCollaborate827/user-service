@@ -8,6 +8,7 @@ import com.chat.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Component;
@@ -29,8 +30,8 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   private final FriendshipService friendshipService;
 
-  private final String USER_ID_HEADER = "userId";
-  private final String REQUEST_ID_HEADER = "requestId";
+  private static final String USER_ID_HEADER = "userId";
+  private static final String REQUEST_ID_HEADER = "requestId";
 
   @Override
   public Optional<NativeWebRequest> getRequest() {
@@ -95,8 +96,11 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
   }
   private String extractRequestIdFromHeader(ServerWebExchange exchange) {
     String requestId = null;
-    if (exchange.getRequest().getHeaders().containsKey(USER_ID_HEADER)) {
-      requestId = exchange.getRequest().getHeaders().get(USER_ID_HEADER).get(0);
+    HttpHeaders headers = exchange.getRequest().getHeaders();
+
+    log.info("Headers: {}", exchange.getRequest().getHeaders());
+    if (headers.containsKey(REQUEST_ID_HEADER) && headers.get(REQUEST_ID_HEADER) != null) {
+      requestId = headers.get(REQUEST_ID_HEADER).get(0);
     }
 
     if (requestId == null) {
@@ -107,13 +111,15 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
 
   private UUID extractUserIdFromHeader(ServerWebExchange exchange) {
     String userId = null;
-    if (exchange.getRequest().getHeaders().containsKey(REQUEST_ID_HEADER)) {
-      userId = exchange.getRequest().getHeaders().get(REQUEST_ID_HEADER).get(0);
+    HttpHeaders headers = exchange.getRequest().getHeaders();
+    if (headers.containsKey(USER_ID_HEADER) && headers.get(USER_ID_HEADER) != null) {
+      userId = headers.get(USER_ID_HEADER).get(0);
     }
 
     if (userId == null) {
       throw new RuntimeException("User ID not found in header");
     }
+
     return UUID.fromString(userId);
   }
 }
