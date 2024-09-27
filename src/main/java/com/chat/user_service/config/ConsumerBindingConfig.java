@@ -4,7 +4,7 @@ package com.chat.user_service.config;
 import com.chat.user_service.entity.User;
 import com.chat.user_service.event.Event;
 import com.chat.user_service.event.UserRegistrationEvent;
-import com.chat.user_service.service.UserService;
+import com.chat.user_service.service.impl.UserServiceImpl;
 import com.chat.user_service.utils.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,11 +23,10 @@ import java.util.function.Consumer;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class ConsumerBindingConfig {
-
+public class  ConsumerBindingConfig {
 
   private final ObjectMapper objectMapper;
-  private final UserService userService;
+  private final UserServiceImpl userService;
 
   @Bean
   public Consumer<Flux<Message<Event>>> userRegistrationDownstreamConsumer() {
