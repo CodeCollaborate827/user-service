@@ -2,21 +2,21 @@ package com.chat.user_service.delegator;
 
 
 import com.chat.user_service.api.UserApiDelegate;
+import com.chat.user_service.exception.ApplicationException;
+import com.chat.user_service.exception.ErrorCode;
 import com.chat.user_service.model.*;
-import com.chat.user_service.service.impl.FriendshipServiceImpl;
-import com.chat.user_service.service.impl.UserServiceImpl;
+import com.chat.user_service.service.FriendshipService;
+import com.chat.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,17 +24,12 @@ import java.util.UUID;
 @Slf4j
 public class UserApiDelegatorImpl implements UserApiDelegate {
 
-  private final UserServiceImpl userService;
+  private final UserService userService;
 
-  private final FriendshipServiceImpl friendshipService;
+  private final FriendshipService friendshipService;
 
   private static final String USER_ID_HEADER = "userId";
   private static final String REQUEST_ID_HEADER = "requestId";
-
-  @Override
-  public Optional<NativeWebRequest> getRequest() {
-    return UserApiDelegate.super.getRequest();
-  }
 
   @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(Mono<AcceptFriendRequest> acceptFriendRequest, ServerWebExchange exchange) {
@@ -116,7 +111,7 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
     }
 
     if (userId == null) {
-      throw new RuntimeException("User ID not found in header");
+      throw new ApplicationException(ErrorCode.USER_ERROR0);
     }
 
     return UUID.fromString(userId);

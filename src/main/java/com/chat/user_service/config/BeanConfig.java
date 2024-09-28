@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@EnableR2dbcRepositories(basePackages = "com.chat.user_service.repository")
 public class BeanConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
