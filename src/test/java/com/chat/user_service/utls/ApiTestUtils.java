@@ -1,12 +1,12 @@
 package com.chat.user_service.utls;
 
-import com.chat.user_service.model.AcceptFriendRequest;
-import com.chat.user_service.model.CommonSuccessResponse;
-import com.chat.user_service.model.DenyFriendRequest;
+import com.chat.user_service.model.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -14,7 +14,7 @@ public class ApiTestUtils {
     public static final String ADD_FRIEND_REQUEST_ENDPOINT = "/api/user/friends/add-friend-request";
     public static final String ACCEPT_FRIEND_REQUEST_ENDPOINT = "/api/user/friends/accept-friend-request";
     public static final String DENY_FRIEND_REQUEST_ENDPOINT = "/api/user/friends/deny-friend-request";
-    public static final String GET_FRIEND_REQUESTS_ENDPOINT = "/api/user/friends/friend-requests";
+    public static final String GET_FRIEND_REQUESTS_ENDPOINT = "/api/user/friends/friend-requests?pageSize=%d&currentPage=%d";
     public static final String GET_FRIEND_LIST_ENDPOINT = "/api/user/friends";
     public static final String UPDATE_USER_AVATAR = "/api/user/profile/image";
     public static final String UPDATE_USER_PROFILE = "/api/user/profile";
@@ -33,16 +33,32 @@ public class ApiTestUtils {
 
 
     public static final String SUCCESS_RESPONSE_MESSAGE = "OPERATION SUCCESSFUL!";
-    public static Mono<ResponseEntity<CommonSuccessResponse>> getCommonResponseMono() {
-
-        CommonSuccessResponse successResponse = getCommonSuccessResponse();
-        return Mono.just(ResponseEntity.ok(successResponse));
-    }
 
     public static CommonSuccessResponse getCommonSuccessResponse() {
         CommonSuccessResponse response = new CommonSuccessResponse();
         response.setRequestId(VALID_REQUEST_ID);
         response.setMessage(SUCCESS_RESPONSE_MESSAGE);
+        return response;
+    }
+
+    public static FriendRequestListPagingResponse getFriendRequestListPagingResponse() {
+        FriendRequestListPagingResponse response = new FriendRequestListPagingResponse();
+        response.setRequestId(VALID_REQUEST_ID);
+        response.setMessage(SUCCESS_RESPONSE_MESSAGE);
+
+        FriendRequestListPagingResponseData responseData = new FriendRequestListPagingResponseData();
+        responseData.setCurrentPage(1);
+        responseData.setPageSize(5);
+        responseData.setTotalPages(1);
+        responseData.setTotalItems(2);
+
+        List<FriendRequestDTO> items = new ArrayList<>();
+        items.add(new FriendRequestDTO());
+        items.add(new FriendRequestDTO());
+
+        responseData.setItems(items);
+        response.setData(responseData);
+
         return response;
     }
 
