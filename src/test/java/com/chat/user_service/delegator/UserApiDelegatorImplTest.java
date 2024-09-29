@@ -2,13 +2,9 @@ package com.chat.user_service.delegator;
 
 import com.chat.user_service.api.UserApiController;
 import com.chat.user_service.exception.ApplicationExceptionHandler;
-import com.chat.user_service.model.AcceptFriendRequest;
-import com.chat.user_service.model.CommonSuccessResponse;
-import com.chat.user_service.model.DenyFriendRequest;
-import com.chat.user_service.model.FriendRequestListPagingResponse;
+import com.chat.user_service.model.*;
 import com.chat.user_service.service.FriendshipService;
 import com.chat.user_service.service.UserService;
-import org.hibernate.validator.constraints.EAN;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -17,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 import static com.chat.user_service.utls.ApiTestUtils.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -195,7 +189,7 @@ class UserApiDelegatorImplTest {
                 .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
                 .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
                 .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist()
-                .jsonPath("$.data").exists();
+                .jsonPath(COMMON_RESPONSE_DATA_JSON_PATH).exists();
     }
 
     @Test
@@ -218,7 +212,7 @@ class UserApiDelegatorImplTest {
                 .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist()
                 .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
                 .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
-                .jsonPath("$.data").exists();
+                .jsonPath(COMMON_RESPONSE_DATA_JSON_PATH).exists();
     }
 
     @Test
@@ -242,28 +236,61 @@ class UserApiDelegatorImplTest {
     @Test
     public void getUserFriends_withValidInput_shouldReturnSuccessResponse() {
         // given
+        FriendsListPagingResponse friendsListPagingResponse = getFriendsListPagingResponse();
+        when(userService.getUserFriends(any(), any(), anyInt(), anyInt()))
+                .thenReturn(Mono.just(ResponseEntity.ok(friendsListPagingResponse)));
 
         // when
+        WebTestClient.ResponseSpec response = webTestClient.get().uri(GET_FRIEND_LIST_ENDPOINT.formatted(5, 1))
+                .headers(setUserIdAndRequestIdInRequestHeader())
+                .accept(APPLICATION_JSON)
+                .exchange();
 
         // verify
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist()
+                .jsonPath(COMMON_RESPONSE_DATA_JSON_PATH).exists();
     }
 
     @Test
     public void getUserFriends_withValidInputAndWithoutRequestIdHeader_shouldReturnSuccessResponse() {
         // given
+        FriendsListPagingResponse friendsListPagingResponse = getFriendsListPagingResponse();
+
+        when(userService.getUserFriends(any(), any(), anyInt(), anyInt()))
+                .thenReturn(Mono.just(ResponseEntity.ok(friendsListPagingResponse)));
 
         // when
+        WebTestClient.ResponseSpec response = webTestClient.get().uri(GET_FRIEND_LIST_ENDPOINT.formatted(5, 1))
+                .accept(APPLICATION_JSON)
+                .headers(setUserIdInRequestHeader())
+                .exchange();
 
         // verify
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .consumeWith(System.out::println)
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).exists()
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist()
+                .jsonPath(COMMON_RESPONSE_DATA_JSON_PATH).exists();
     }
 
     @Test
     public void getUserFriends_withValidInputAndWithoutUserIdHeader_shouldReturnBadRequestResponse() {
-        // given
 
         // when
+        WebTestClient.ResponseSpec response = webTestClient.get().uri(GET_FRIEND_LIST_ENDPOINT.formatted(5, 1))
+                .headers(setRequestIdInRequestHeader())
+                .accept(APPLICATION_JSON)
+                .exchange();
 
         // verify
+        response.expectStatus().is4xxClientError();
+
     }
 
     @Test
