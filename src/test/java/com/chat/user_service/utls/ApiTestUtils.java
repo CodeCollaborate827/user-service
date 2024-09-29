@@ -3,13 +3,14 @@ package com.chat.user_service.utls;
 import com.chat.user_service.model.*;
 import org.springframework.http.HttpHeaders;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class ApiTestUtils {
-    public static final String ADD_FRIEND_REQUEST_ENDPOINT = "/api/user/friends/add-friend-request";
+    public static final String ADD_FRIEND_REQUEST_ENDPOINT = "/api/user/friends/add-friend";
     public static final String ACCEPT_FRIEND_REQUEST_ENDPOINT = "/api/user/friends/accept-friend-request";
     public static final String DENY_FRIEND_REQUEST_ENDPOINT = "/api/user/friends/deny-friend-request";
     public static final String GET_FRIEND_REQUESTS_ENDPOINT = "/api/user/friends/friend-requests?pageSize=%d&currentPage=%d";
@@ -32,6 +33,7 @@ public class ApiTestUtils {
 
 
     public static final String SUCCESS_RESPONSE_MESSAGE = "OPERATION SUCCESSFUL!";
+    public static final String STRING_CONTENT = "string content";
 
     public static CommonSuccessResponse getCommonSuccessResponse() {
         CommonSuccessResponse response = new CommonSuccessResponse();
@@ -80,6 +82,43 @@ public class ApiTestUtils {
         response.setData(responseData);
         return response;
     }
+
+
+    public static UserProfileResponse getUserProfileResponse() {
+        UserProfileResponse response = new UserProfileResponse();
+        response.setMessage(SUCCESS_RESPONSE_MESSAGE);
+        response.setRequestId(VALID_REQUEST_ID);
+
+        UserProfileResponseData responseData = new UserProfileResponseData();
+        responseData.setAddress(new UserProfileResponseDataAddress());
+        responseData.setUserId(VALID_USER_ID.toString());
+        responseData.setDisplayName(STRING_CONTENT);
+        responseData.setUpdatedAt(OffsetDateTime.now().toString());
+        responseData.setEmail(STRING_CONTENT);
+        responseData.setCreatedAt(OffsetDateTime.now().toString());
+        responseData.setUsername(STRING_CONTENT);
+        responseData.setAvatarUrl(STRING_CONTENT);
+
+        response.setData(responseData);
+
+        return response;
+    }
+
+    public static AddFriendRequest getAddFriendRequest() {
+        AddFriendRequest addFriendRequest = new AddFriendRequest();
+        addFriendRequest.setUserId(VALID_USER_ID.toString());
+        return addFriendRequest;
+    }
+
+    public static UpdateProfileRequest getUpdateProfileRequest() {
+        UpdateProfileRequest updateProfileRequest = new UpdateProfileRequest();
+
+        updateProfileRequest.setAddress(new UserProfileResponseDataAddress());
+        updateProfileRequest.setDisplayName(STRING_CONTENT);
+
+        return updateProfileRequest;
+    }
+
 
 
 

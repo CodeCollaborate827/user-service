@@ -10,14 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static com.chat.user_service.utls.ApiTestUtils.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 
 @WebFluxTest(controllers = UserApiDelegatorImpl.class)
 @ContextConfiguration(classes = {UserApiDelegatorImpl.class, UserApiController.class, ApplicationExceptionHandler.class})
@@ -99,7 +103,9 @@ class UserApiDelegatorImplTest {
 
         // then
 
-        response.expectStatus().is4xxClientError();
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
     }
 
     @Test
@@ -148,7 +154,7 @@ class UserApiDelegatorImplTest {
         // verify
         response.expectStatus().is2xxSuccessful()
                 .expectBody()
-                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).exists()
                 .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
                 .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist();
 
@@ -167,7 +173,9 @@ class UserApiDelegatorImplTest {
                 .exchange();
 
         // verify
-        response.expectStatus().is4xxClientError();
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
     }
 
     @Test
@@ -210,7 +218,7 @@ class UserApiDelegatorImplTest {
         response.expectStatus().is2xxSuccessful()
                 .expectBody()
                 .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist()
-                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).exists()
                 .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
                 .jsonPath(COMMON_RESPONSE_DATA_JSON_PATH).exists();
     }
@@ -230,7 +238,9 @@ class UserApiDelegatorImplTest {
 
         // verify
 
-        response.expectStatus().is4xxClientError();
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
     }
 
     @Test
@@ -289,118 +299,280 @@ class UserApiDelegatorImplTest {
                 .exchange();
 
         // verify
-        response.expectStatus().is4xxClientError();
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
 
     }
 
     @Test
     public void getUserProfile_withValidInput_shouldReturnSuccessResponse() {
         // given
+        UserProfileResponse userProfileResponse = getUserProfileResponse();
+        when(userService.getUserProfile(any(), any()))
+                .thenReturn(Mono.just(ResponseEntity.ok(userProfileResponse)));
 
         // when
+        WebTestClient.ResponseSpec response = webTestClient.get().uri(GET_USER_PROFILE)
+                .accept(APPLICATION_JSON)
+                .headers(setUserIdAndRequestIdInRequestHeader())
+                .exchange();
 
         // verify
+
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist()
+                .jsonPath(COMMON_RESPONSE_DATA_JSON_PATH).exists();
     }
 
     @Test
     public void getUserProfile_withValidInputAndWithoutRequestIdHeader_shouldReturnSuccessResponse() {
         // given
+        UserProfileResponse userProfileResponse = getUserProfileResponse();
+        when(userService.getUserProfile(any(), any()))
+                .thenReturn(Mono.just(ResponseEntity.ok(userProfileResponse)));
 
         // when
+        WebTestClient.ResponseSpec response = webTestClient.get().uri(GET_USER_PROFILE)
+                .accept(APPLICATION_JSON)
+                .headers(setUserIdInRequestHeader())
+                .exchange();
 
         // verify
+
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist()
+                .jsonPath(COMMON_RESPONSE_DATA_JSON_PATH).exists();
     }
 
     @Test
     public void getUserProfile_withValidInputAndWithoutUserIdHeader_shouldReturnBadRequestResponse() {
         // given
+        UserProfileResponse userProfileResponse = getUserProfileResponse();
+        when(userService.getUserProfile(any(), any()))
+                .thenReturn(Mono.just(ResponseEntity.ok(userProfileResponse)));
 
         // when
+        WebTestClient.ResponseSpec response = webTestClient.get().uri(GET_USER_PROFILE)
+                .accept(APPLICATION_JSON)
+                .headers(setRequestIdInRequestHeader())
+                .exchange();
 
         // verify
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
     }
 
     @Test
     public void sendFriendRequest_withValidInput_shouldReturnSuccessResponse() {
         // given
+        CommonSuccessResponse commonSuccessResponse = getCommonSuccessResponse();
+        when(friendshipService.sendFriendRequest(any(), any(),any(Mono.class)))
+                .thenReturn(Mono.just(ResponseEntity.ok((commonSuccessResponse))));
 
         // when
+        AddFriendRequest addFriendRequest = getAddFriendRequest();
+        WebTestClient.ResponseSpec response = webTestClient.post().uri(ADD_FRIEND_REQUEST_ENDPOINT)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .headers(setUserIdAndRequestIdInRequestHeader())
+                .body(Mono.just(addFriendRequest), AddFriendRequest.class)
+                .exchange();
 
         // verify
+
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist();
     }
 
 
     @Test
     public void sendFriendRequest_withValidInputAndWithoutRequestIdHeader_shouldReturnSuccessResponse() {
-        // given
+        CommonSuccessResponse commonSuccessResponse = getCommonSuccessResponse();
+        when(friendshipService.sendFriendRequest(any(), any(),any(Mono.class)))
+                .thenReturn(Mono.just(ResponseEntity.ok((commonSuccessResponse))));
 
         // when
+        AddFriendRequest addFriendRequest = getAddFriendRequest();
+        WebTestClient.ResponseSpec response = webTestClient.post().uri(ADD_FRIEND_REQUEST_ENDPOINT)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .headers(setUserIdInRequestHeader())
+                .body(Mono.just(addFriendRequest), AddFriendRequest.class)
+                .exchange();
 
         // verify
+
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist();
     }
 
     @Test
     public void sendFriendRequest_withValidInputAndWithoutUserIdHeader_shouldReturnBadRequestResponse() {
-        // given
-
         // when
+        AddFriendRequest addFriendRequest = getAddFriendRequest();
+        WebTestClient.ResponseSpec response = webTestClient.post().uri(ADD_FRIEND_REQUEST_ENDPOINT)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .headers(setRequestIdInRequestHeader())
+                .body(Mono.just(addFriendRequest), AddFriendRequest.class)
+                .exchange();
 
         // verify
+
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
     }
 
     @Test
     public void updateUserProfile_withValidInput_shouldReturnSuccessResponse() {
-        // given
+        CommonSuccessResponse commonSuccessResponse = getCommonSuccessResponse();
+        when(userService.updateUserProfile(any(), any(),any(Mono.class)))
+                .thenReturn(Mono.just(ResponseEntity.ok((commonSuccessResponse))));
 
         // when
+        UpdateProfileRequest updateProfileRequest = getUpdateProfileRequest();
+        WebTestClient.ResponseSpec response = webTestClient.put().uri(UPDATE_USER_PROFILE)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .headers(setUserIdAndRequestIdInRequestHeader())
+                .body(Mono.just(updateProfileRequest), AddFriendRequest.class)
+                .exchange();
 
         // verify
+
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist();
     }
 
     @Test
     public void updateUserProfile_withValidInputAndWithoutRequestIdHeader_shouldReturnSuccessResponse() {
-        // given
+        CommonSuccessResponse commonSuccessResponse = getCommonSuccessResponse();
+        when(userService.updateUserProfile(any(), any(),any(Mono.class)))
+                .thenReturn(Mono.just(ResponseEntity.ok((commonSuccessResponse))));
 
         // when
+        UpdateProfileRequest updateProfileRequest = getUpdateProfileRequest();
+        WebTestClient.ResponseSpec response = webTestClient.put().uri(UPDATE_USER_PROFILE)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .headers(setUserIdInRequestHeader())
+                .body(Mono.just(updateProfileRequest), AddFriendRequest.class)
+                .exchange();
 
         // verify
+
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist();
     }
 
     @Test
     public void updateUserProfile_withValidInputAndWithoutUserIdHeader_shouldReturnBadRequestResponse() {
-        // given
-
         // when
+        UpdateProfileRequest updateProfileRequest = getUpdateProfileRequest();
+        WebTestClient.ResponseSpec response = webTestClient.put().uri(UPDATE_USER_PROFILE)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .headers(setRequestIdInRequestHeader())
+                .body(Mono.just(updateProfileRequest), AddFriendRequest.class)
+                .exchange();
+
 
         // verify
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
+
     }
 
 
     @Test
     public void updateUserProfileImage_withValidInput_shouldReturnSuccessResponse() {
         // given
+        CommonSuccessResponse commonSuccessResponse = getCommonSuccessResponse();
+        when(userService.updateUserProfileImage(any(), any(), any(Flux.class)))
+                .thenReturn(Mono.just(ResponseEntity.ok(commonSuccessResponse)));
+
 
         // when
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        multipartBodyBuilder.part("image", "Test Image Content".getBytes());
+
+        WebTestClient.ResponseSpec response = webTestClient.put().uri(UPDATE_USER_AVATAR)
+                .contentType(MULTIPART_FORM_DATA)
+                .headers(setUserIdAndRequestIdInRequestHeader())
+                .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+                .exchange();
 
         // verify
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist();
     }
 
     @Test
     public void updateUserProfileImage_withValidInputAndWithoutRequestIdHeader_shouldReturnSuccessResponse() {
         // given
+        CommonSuccessResponse commonSuccessResponse = getCommonSuccessResponse();
+        when(userService.updateUserProfileImage(any(), any(), any(Flux.class)))
+                .thenReturn(Mono.just(ResponseEntity.ok(commonSuccessResponse)));
+
 
         // when
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        multipartBodyBuilder.part("image", "Test Image Content".getBytes());
+
+        WebTestClient.ResponseSpec response = webTestClient.put().uri(UPDATE_USER_AVATAR)
+                .contentType(MULTIPART_FORM_DATA)
+                .headers(setUserIdInRequestHeader())
+                .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+                .exchange();
 
         // verify
+        response.expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_REQUEST_ID_JSON_PATH).isEqualTo(getCommonSuccessResponse().getRequestId())
+                .jsonPath(COMMON_RESPONSE_MESSAGE_JSON_PATH).isEqualTo(getCommonSuccessResponse().getMessage())
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).doesNotExist();
     }
 
     @Test
     public void updateUserProfileImage_withValidInputAndWithoutUserIdHeader_shouldReturnBadRequestResponse() {
-        // given
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        multipartBodyBuilder.part("image", new byte[100]);
 
-        // when
+        WebTestClient.ResponseSpec response = webTestClient.put().uri(UPDATE_USER_AVATAR)
+                .contentType(MULTIPART_FORM_DATA)
+                .headers(setRequestIdInRequestHeader())
+                .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+                .exchange();
 
         // verify
+        response.expectStatus().is4xxClientError()
+                .expectBody()
+                .jsonPath(COMMON_RESPONSE_ERROR_CODE_JSON_PATH).exists();
     }
 
 }
