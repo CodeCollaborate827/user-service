@@ -2,6 +2,7 @@ package com.chat.user_service.exception;
 
 public enum ErrorCode {
 
+  USER_ERROR0("User id not found in the request header", 400),
   USER_ERROR1("User not found", 404),
   USER_ERROR2("Two users were already friend", 400),
   USER_ERROR3("Friend request was already sent", 400),

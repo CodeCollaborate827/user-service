@@ -1,17 +1,14 @@
-package com.chat.user_service.controller;
+package com.chat.user_service.delegator;
 
-import com.chat.user_service.delegator.HealthController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-
 @WebFluxTest(controllers = HealthController.class)
 @TestPropertySource(properties = "spring.application.name=test-application")
-//@ContextConfiguration(classes = HealthController.class)  // Restrict the context to only the controller
-class HealthControllerTests {
+class HealthControllerTest {
 
     @Autowired
     private WebTestClient webTestClient;
