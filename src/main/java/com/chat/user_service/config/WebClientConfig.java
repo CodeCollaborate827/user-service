@@ -8,10 +8,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Bean
-    @LoadBalanced
-    public WebClient.Builder mediaServiceWebClient() {
-        return WebClient.builder()
-                .baseUrl("http://MEDIA-SERVICE");
-    }
+  @Bean
+  @LoadBalanced
+  public WebClient.Builder mediaServiceWebClient() {
+    return WebClient.builder().baseUrl("http://MEDIA-SERVICE");
+  }
 }
