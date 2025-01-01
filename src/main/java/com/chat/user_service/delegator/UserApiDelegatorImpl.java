@@ -1,12 +1,12 @@
 package com.chat.user_service.delegator;
 
-
 import com.chat.user_service.api.UserApiDelegate;
 import com.chat.user_service.exception.ApplicationException;
 import com.chat.user_service.exception.ErrorCode;
 import com.chat.user_service.model.*;
 import com.chat.user_service.service.FriendshipService;
 import com.chat.user_service.service.UserService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,38 +30,42 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
   private static final String REQUEST_ID_HEADER = "requestId";
 
   @Override
-  public Mono<ResponseEntity<UserSearchPagingResponse>> searchUsers(String keyword, Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<UserSearchPagingResponse>> searchUsers(
+      String keyword, Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     return userService.searchUsers(requestId, keyword, pageSize, currentPage);
   }
 
   @Override
-  public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(Mono<AcceptFriendRequest> acceptFriendRequest, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(
+      Mono<AcceptFriendRequest> acceptFriendRequest, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
     return friendshipService.acceptFriendRequest(userId, requestId, acceptFriendRequest);
   }
 
   @Override
-  public Mono<ResponseEntity<CommonSuccessResponse>> denyFriendRequest(Mono<DenyFriendRequest> denyFriendRequest, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> denyFriendRequest(
+      Mono<DenyFriendRequest> denyFriendRequest, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
     return friendshipService.denyFriendRequest(userId, requestId, denyFriendRequest);
   }
 
   @Override
-  public Mono<ResponseEntity<FriendRequestListPagingResponse>> getUserFriendRequests(Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<FriendRequestListPagingResponse>> getUserFriendRequests(
+      Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
     return friendshipService.getUserFriendRequests(userId, requestId, pageSize, currentPage);
   }
 
   @Override
-  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(
+      Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
     return userService.getUserFriends(userId, requestId, pageSize, currentPage);
-
   }
 
   @Override
@@ -74,21 +76,24 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
   }
 
   @Override
-  public Mono<ResponseEntity<CommonSuccessResponse>> sendFriendRequest(Mono<AddFriendRequest> addFriendRequest, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> sendFriendRequest(
+      Mono<AddFriendRequest> addFriendRequest, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
     return friendshipService.sendFriendRequest(userId, requestId, addFriendRequest);
   }
 
   @Override
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(Mono<UpdateProfileRequest> updateProfileRequest, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(
+      Mono<UpdateProfileRequest> updateProfileRequest, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
     return userService.updateUserProfile(userId, requestId, updateProfileRequest);
   }
 
   @Override
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(Flux<Part> avatar, ServerWebExchange exchange) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(
+      Flux<Part> avatar, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
     return userService.updateUserProfileImage(userId, requestId, avatar);

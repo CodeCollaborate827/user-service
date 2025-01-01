@@ -4,16 +4,15 @@ import com.chat.user_service.entity.User;
 import com.chat.user_service.entity.UserAddress;
 import com.chat.user_service.event.UserRegistrationEvent;
 import com.chat.user_service.model.*;
-import org.springframework.http.ResponseEntity;
-
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import org.springframework.http.ResponseEntity;
 
 public class Utils {
 
-
   private static final String DEFAULT_AVATAR_URL = "https://ui-avatars.com/api/?name=%s";
+
   public static UserProfileResponseData convertUserToUserProfile(User user) {
     UserProfileResponseData userProfile = new UserProfileResponseData();
     userProfile.setUserId(convertUUIDToString(user.getId()));
@@ -27,9 +26,10 @@ public class Utils {
     return userProfile;
   }
 
-
-  public static UserProfileResponseDataAddress convertUserAddressToUserProfileAddress(UserAddress userAddress) {
-    UserProfileResponseDataAddress userProfileResponseAddress = new UserProfileResponseDataAddress();
+  public static UserProfileResponseDataAddress convertUserAddressToUserProfileAddress(
+      UserAddress userAddress) {
+    UserProfileResponseDataAddress userProfileResponseAddress =
+        new UserProfileResponseDataAddress();
     userProfileResponseAddress.setCountry(userAddress.getCountry());
     userProfileResponseAddress.setCity(userAddress.getCity());
     userProfileResponseAddress.setProvince(userAddress.getProvince());
@@ -39,11 +39,11 @@ public class Utils {
     return userProfileResponseAddress;
   }
 
-  public static ResponseEntity<CommonSuccessResponse> createSuccessResponse(String message, String requestId) {
+  public static ResponseEntity<CommonSuccessResponse> createSuccessResponse(
+      String message, String requestId) {
     CommonSuccessResponse response = new CommonSuccessResponse();
     response.setMessage(message);
-    response.setRequestId(requestId); //TODO: get it from the request header
-
+    response.setRequestId(requestId); // TODO: get it from the request header
 
     return ResponseEntity.ok(response);
   }
@@ -62,12 +62,16 @@ public class Utils {
   public static User convertToUser(UserRegistrationEvent event) {
 
     User.Gender gender = User.Gender.valueOf(event.getGender().name());
-    OffsetDateTime createdTime = event.getCreatedAt() != null? event.getCreatedAt() : OffsetDateTime.now();
+    OffsetDateTime createdTime =
+        event.getCreatedAt() != null ? event.getCreatedAt() : OffsetDateTime.now();
     User user = new User();
     user.setId(convertStringToUUID(event.getUserId()));
     user.setDisplayName(event.getDisplayName());
     user.setUsername(event.getUsername());
-    user.setAvatarUrl(event.getAvatar() != null ? event.getAvatar() : generateDefaultAvatar(event.getDisplayName()));
+    user.setAvatarUrl(
+        event.getAvatar() != null
+            ? event.getAvatar()
+            : generateDefaultAvatar(event.getDisplayName()));
     user.setEmail(event.getEmail());
     user.setDateOfBirth(LocalDate.parse(event.getDateOfBirth()));
     user.setGender(gender);
@@ -83,18 +87,15 @@ public class Utils {
   }
 
   private static String generateDefaultAvatar(String displayName) {
-    return DEFAULT_AVATAR_URL.formatted(displayName.replaceAll("\\w+", "%20")); // replace spaces by ASCII character for space
+    return DEFAULT_AVATAR_URL.formatted(
+        displayName.replaceAll("\\w+", "%20")); // replace spaces by ASCII character for space
   }
-
 
   public static UUID convertStringToUUID(String id) {
     return UUID.fromString(id);
   }
 
-
   public static String convertUUIDToString(UUID uuid) {
     return uuid.toString();
   }
-
-
 }

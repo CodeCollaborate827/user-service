@@ -10,6 +10,10 @@ import com.chat.user_service.repository.UserRepository;
 import com.chat.user_service.service.UserAddressService;
 import com.chat.user_service.service.UserService;
 import com.chat.user_service.utils.Utils;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +21,6 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -31,56 +30,65 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final UserAddressService userAddressService;
 
-
-
   public Mono<User> saveUser(User user) {
     UserAddress address = user.getAddress();
     log.info("Saving user: {}", user);
-    return userRepository.saveUserWithId(user)
-            .then(Mono.defer(() -> {
-              return userAddressService.save(address)
-                      .thenReturn(user);
-            }));
+    return userRepository
+        .saveUserWithId(user)
+        .then(
+            Mono.defer(
+                () -> {
+                  return userAddressService.save(address).thenReturn(user);
+                }));
   }
 
   public Mono<ResponseEntity<UserProfileResponse>> getUserProfile(UUID userId, String requestId) {
     // get the user
     return getUserById(userId)
-            .map(user -> {
+        .map(
+            user -> {
               UserProfileResponseData userProfileResponse = Utils.convertUserToUserProfile(user);
-              UserProfileResponseDataAddress userProfileResponseAddress = Utils.convertUserAddressToUserProfileAddress(user.getAddress());
+              UserProfileResponseDataAddress userProfileResponseAddress =
+                  Utils.convertUserAddressToUserProfileAddress(user.getAddress());
               userProfileResponse.setAddress(userProfileResponseAddress);
               return userProfileResponse;
             })
-            .map(data -> {
+        .map(
+            data -> {
               UserProfileResponse response = new UserProfileResponse();
               response.setData(data);
               response.setMessage("Get user profile successfully"); // TODO: move it to env constant
               response.setRequestId(requestId);
               return ResponseEntity.ok(response);
             })
-            .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
+        .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
   }
 
   public Mono<User> getUserById(UUID userId) {
-    // get the user and the user address (if the user address is not present, use default empty address value)
-    return Mono.zip(userRepository.findById(userId), userAddressService.getUserAddress(userId).switchIfEmpty(Mono.just(new UserAddress())))
-            .map(t2 -> {
+    // get the user and the user address (if the user address is not present, use default empty
+    // address value)
+    return Mono.zip(
+            userRepository.findById(userId),
+            userAddressService.getUserAddress(userId).switchIfEmpty(Mono.just(new UserAddress())))
+        .map(
+            t2 -> {
               User user = t2.getT1();
               UserAddress userAddress = t2.getT2();
 
               log.info("User address: {}", t2.getT2());
-
 
               user.setAddress(userAddress);
               return user;
             });
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(UUID userId, String requestId, Mono<UpdateProfileRequest> updateProfileRequest) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfile(
+      UUID userId, String requestId, Mono<UpdateProfileRequest> updateProfileRequest) {
     // TODO: refactor this code
-    return getUserById(userId).zipWith(updateProfileRequest)
-            .flatMap(t2 -> {
+    return getUserById(userId)
+        .zipWith(updateProfileRequest)
+        .flatMap(
+            t2 -> {
               User user = t2.getT1();
               UpdateProfileRequest request = t2.getT2();
 
@@ -98,120 +106,143 @@ public class UserServiceImpl implements UserService {
                 log.info("Updating user address for user id: {}", user.getId());
 
                 // update the user address
-                if (Objects.nonNull(newAddress.getCountry())) userAddress.setCountry(newAddress.getCountry());
-                if (Objects.nonNull(newAddress.getProvince())) userAddress.setProvince(newAddress.getProvince());
-                if (Objects.nonNull(newAddress.getCity())) userAddress.setCity(newAddress.getCity());
-                if (Objects.nonNull(newAddress.getDistrict())) userAddress.setDistrict(newAddress.getDistrict());
-                if (Objects.nonNull(newAddress.getWard())) userAddress.setWard(newAddress.getWard());
+                if (Objects.nonNull(newAddress.getCountry()))
+                  userAddress.setCountry(newAddress.getCountry());
+                if (Objects.nonNull(newAddress.getProvince()))
+                  userAddress.setProvince(newAddress.getProvince());
+                if (Objects.nonNull(newAddress.getCity()))
+                  userAddress.setCity(newAddress.getCity());
+                if (Objects.nonNull(newAddress.getDistrict()))
+                  userAddress.setDistrict(newAddress.getDistrict());
+                if (Objects.nonNull(newAddress.getWard()))
+                  userAddress.setWard(newAddress.getWard());
 
                 userAddress.setUpdatedAt(OffsetDateTime.now());
               }
 
               // save the user and the user address
-              return userRepository.save(user)
-                      .then(userAddressService.save(userAddress));
-
+              return userRepository.save(user).then(userAddressService.save(userAddress));
             })
-            .then(Mono.just(Utils.createSuccessResponse("User profile updated successfully", requestId)))
-            .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
+        .then(
+            Mono.just(Utils.createSuccessResponse("User profile updated successfully", requestId)))
+        .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.USER_ERROR1)));
   }
 
-
-  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(UUID userId, String requestId, int pageSize, int currentPage) {
+  public Mono<ResponseEntity<FriendsListPagingResponse>> getUserFriends(
+      UUID userId, String requestId, int pageSize, int currentPage) {
 
     // count the total item first
-      return friendshipRepository.countByUser1IdOrUser2Id(userId, userId)
-              .flatMap(count -> {
-                FriendsListPagingResponseData response = new FriendsListPagingResponseData();
-                response.setTotalItems(count);
-                response.setPageSize(pageSize);
-                response.currentPage(currentPage);
+    return friendshipRepository
+        .countByUser1IdOrUser2Id(userId, userId)
+        .flatMap(
+            count -> {
+              FriendsListPagingResponseData response = new FriendsListPagingResponseData();
+              response.setTotalItems(count);
+              response.setPageSize(pageSize);
+              response.currentPage(currentPage);
 
-                int totalPageNum = (int) Math.ceil((double) count / pageSize);
-                response.setTotalPages(totalPageNum);
+              int totalPageNum = (int) Math.ceil((double) count / pageSize);
+              response.setTotalPages(totalPageNum);
 
-                int offset = (currentPage - 1) * (pageSize);
-                int limit = pageSize;
+              int offset = (currentPage - 1) * (pageSize);
+              int limit = pageSize;
 
-                // fetch user object and convert to Friend dto and set data for the paging response
-                return friendshipRepository.findUserFriendsPaging(userId, offset, limit)
-                        .collectList()
-                        .doOnNext(item -> log.info("user {} ", item))
-                        .map(userList ->  userList.stream().map(Utils::convertUserToFriendDTO).toList())
-                        .map(friendList -> {
-                          response.setItems(friendList);
-                          return response;
-                        });
+              // fetch user object and convert to Friend dto and set data for the paging response
+              return friendshipRepository
+                  .findUserFriendsPaging(userId, offset, limit)
+                  .collectList()
+                  .doOnNext(item -> log.info("user {} ", item))
+                  .map(userList -> userList.stream().map(Utils::convertUserToFriendDTO).toList())
+                  .map(
+                      friendList -> {
+                        response.setItems(friendList);
+                        return response;
+                      });
+            })
+        .map(
+            data -> {
+              FriendsListPagingResponse response = new FriendsListPagingResponse();
+              response.setData(data);
+              response.setMessage("Get user profile successfully"); // TODO: move it to env constant
+              response.setRequestId(requestId);
 
-              })
-              .map(data -> {
-                FriendsListPagingResponse response = new FriendsListPagingResponse();
-                response.setData(data);
-                response.setMessage("Get user profile successfully"); // TODO: move it to env constant
-                response.setRequestId(requestId);
-
-                return ResponseEntity.ok(response);
-              });
-
+              return ResponseEntity.ok(response);
+            });
   }
 
-  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(UUID userId, String requestId, Flux<Part> avatar) {
+  public Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(
+      UUID userId, String requestId, Flux<Part> avatar) {
 
     log.info("Updating user profile image for user id: {}", userId);
 
-    return avatar.doOnNext(part -> {
-      // save the image to the file system
-      log.info("part:{}", part.content());
-      part.content().map(dataBuffer -> {
-        byte[] bytes = new byte[dataBuffer.readableByteCount()];
-        dataBuffer.read(bytes);
-        return bytes;
-      }).map(bytes -> {
-        // save the image to the file system
-        log.info("bytes:{}", bytes);
-        return bytes;
-      }).subscribe();
-    }).then(Mono.just(Utils.createSuccessResponse("OK", requestId)));
-
+    return avatar
+        .doOnNext(
+            part -> {
+              // save the image to the file system
+              log.info("part:{}", part.content());
+              part.content()
+                  .map(
+                      dataBuffer -> {
+                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                        dataBuffer.read(bytes);
+                        return bytes;
+                      })
+                  .map(
+                      bytes -> {
+                        // save the image to the file system
+                        log.info("bytes:{}", bytes);
+                        return bytes;
+                      })
+                  .subscribe();
+            })
+        .then(Mono.just(Utils.createSuccessResponse("OK", requestId)));
   }
 
-    @Override
-    public Mono<ResponseEntity<UserSearchPagingResponse>> searchUsers(String requestId, String keyword, Integer pageSize, Integer currentPage) {
-        int size = pageSize != null ? pageSize : 10;
-        int page = currentPage != null ? currentPage : 1;
-        long offset = (long) (page - 1) * size;
+  @Override
+  public Mono<ResponseEntity<UserSearchPagingResponse>> searchUsers(
+      String requestId, String keyword, Integer pageSize, Integer currentPage) {
+    int size = pageSize != null ? pageSize : 10;
+    int page = currentPage != null ? currentPage : 1;
+    long offset = (long) (page - 1) * size;
 
-        String exactUsername = keyword.startsWith("#") ? keyword.substring(1) : "";
-        String likePattern = !keyword.startsWith("#") ? "%" + keyword.toLowerCase() + "%" : "";
+    String exactUsername = keyword.startsWith("#") ? keyword.substring(1) : "";
+    String likePattern = !keyword.startsWith("#") ? "%" + keyword.toLowerCase() + "%" : "";
 
-        return userRepository.searchUsers(keyword, exactUsername, likePattern, size, offset)
-                .doOnNext(user -> log.info("Found User: {}", user))
-                .collectList()
-                .map(results -> {
-                    int totalItems = results.isEmpty() ? 0 : results.getFirst().getTotalCount();
-                    int totalPages = (int) Math.ceil((double) totalItems / size);
+    return userRepository
+        .searchUsers(keyword, exactUsername, likePattern, size, offset)
+        .doOnNext(user -> log.info("Found User: {}", user))
+        .collectList()
+        .map(
+            results -> {
+              int totalItems = results.isEmpty() ? 0 : results.getFirst().getTotalCount();
+              int totalPages = (int) Math.ceil((double) totalItems / size);
 
-                    List<UserSearchDTO> users = results.stream()
-                            .map(user -> new UserSearchDTO()
-                                    .userId(user.getUserId())
-                                    .username(user.getUsername())
-                                    .displayName(user.getDisplayName())
-                                    .avatarUrl(user.getAvatarUrl()))
-                            .toList();
+              List<UserSearchDTO> users =
+                  results.stream()
+                      .map(
+                          user ->
+                              new UserSearchDTO()
+                                  .userId(user.getUserId())
+                                  .username(user.getUsername())
+                                  .displayName(user.getDisplayName())
+                                  .avatarUrl(user.getAvatarUrl()))
+                      .toList();
 
-                    UserSearchPagingResponseData paginationData = new UserSearchPagingResponseData()
-                            .totalItems(totalItems)
-                            .pageSize(size)
-                            .currentPage(page)
-                            .totalPages(totalPages)
-                            .items(users);
+              UserSearchPagingResponseData paginationData =
+                  new UserSearchPagingResponseData()
+                      .totalItems(totalItems)
+                      .pageSize(size)
+                      .currentPage(page)
+                      .totalPages(totalPages)
+                      .items(users);
 
-                    UserSearchPagingResponse response = new UserSearchPagingResponse()
-                            .message("Search users successfully")
-                            .requestId(requestId)
-                            .data(paginationData);
+              UserSearchPagingResponse response =
+                  new UserSearchPagingResponse()
+                      .message("Search users successfully")
+                      .requestId(requestId)
+                      .data(paginationData);
 
-                    return ResponseEntity.ok(response);
-                });
-    }
+              return ResponseEntity.ok(response);
+            });
+  }
 }
