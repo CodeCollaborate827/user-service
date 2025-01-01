@@ -1,10 +1,7 @@
 package com.chat.user_service.service;
 
 import com.chat.user_service.entity.User;
-import com.chat.user_service.model.CommonSuccessResponse;
-import com.chat.user_service.model.FriendsListPagingResponse;
-import com.chat.user_service.model.UpdateProfileRequest;
-import com.chat.user_service.model.UserProfileResponse;
+import com.chat.user_service.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
@@ -23,4 +20,5 @@ public interface UserService {
 
     Mono<ResponseEntity<CommonSuccessResponse>> updateUserProfileImage(UUID userId, String requestId, Flux<Part> avatar);
 
+    Mono<ResponseEntity<UserSearchPagingResponse>> searchUsers(String requestId, String keyword, Integer pageSize, Integer currentPage);
 }

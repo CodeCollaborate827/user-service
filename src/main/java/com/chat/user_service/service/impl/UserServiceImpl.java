@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -173,4 +174,44 @@ public class UserServiceImpl implements UserService {
     }).then(Mono.just(Utils.createSuccessResponse("OK", requestId)));
 
   }
+
+    @Override
+    public Mono<ResponseEntity<UserSearchPagingResponse>> searchUsers(String requestId, String keyword, Integer pageSize, Integer currentPage) {
+        int size = pageSize != null ? pageSize : 10;
+        int page = currentPage != null ? currentPage : 1;
+        long offset = (long) (page - 1) * size;
+
+        String exactUsername = keyword.startsWith("#") ? keyword.substring(1) : "";
+        String likePattern = !keyword.startsWith("#") ? "%" + keyword.toLowerCase() + "%" : "";
+
+        return userRepository.searchUsers(keyword, exactUsername, likePattern, size, offset)
+                .doOnNext(user -> log.info("Found User: {}", user))
+                .collectList()
+                .map(results -> {
+                    int totalItems = results.isEmpty() ? 0 : results.getFirst().getTotalCount();
+                    int totalPages = (int) Math.ceil((double) totalItems / size);
+
+                    List<UserSearchDTO> users = results.stream()
+                            .map(user -> new UserSearchDTO()
+                                    .userId(user.getUserId())
+                                    .username(user.getUsername())
+                                    .displayName(user.getDisplayName())
+                                    .avatarUrl(user.getAvatarUrl()))
+                            .toList();
+
+                    UserSearchPagingResponseData paginationData = new UserSearchPagingResponseData()
+                            .totalItems(totalItems)
+                            .pageSize(size)
+                            .currentPage(page)
+                            .totalPages(totalPages)
+                            .items(users);
+
+                    UserSearchPagingResponse response = new UserSearchPagingResponse()
+                            .message("Search users successfully")
+                            .requestId(requestId)
+                            .data(paginationData);
+
+                    return ResponseEntity.ok(response);
+                });
+    }
 }

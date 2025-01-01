@@ -12,12 +12,62 @@ tags:
     description: Operations related to user profile
 
 paths:
+  /user/search:
+    get:
+      summary: Search users by keyword
+      description: Search users by display name or username (with # prefix)
+      operationId: searchUsers
+      tags:
+        - user-service
+      parameters:
+        - name: keyword
+          in: query
+          description: Search keyword. Use # prefix for exact username match (e.g. #john_doe)
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+            format: int32
+        - name: currentPage
+          in: query
+          description: Current page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            format: int32
+      responses:
+        '200':
+          description: Users found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSearchPagingResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500InternalError'
+
   /user/profile:
     get:
       summary: Get user profile information
       operationId: getUserProfile
       tags:
-      - user-service
+        - user-service
       responses:
         '200':
           description: User profile information retrieved successfully
@@ -29,7 +79,7 @@ paths:
       summary: Update user profile information
       operationId: updateUserProfile
       tags:
-      - user-service
+        - user-service
       requestBody:
         required: true
         content:
@@ -54,7 +104,7 @@ paths:
       summary: Update user profile image
       operationId: updateUserProfileImage
       tags:
-      - user-service
+        - user-service
       requestBody:
         required: true
         content:
@@ -175,7 +225,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AddFriendRequest'
-
       responses:
         '200':
           description: Friend request sent successfully
@@ -330,6 +379,64 @@ components:
                   type: string
                   description: Ward where the user resides
                   example: "Nghia Tan"
+    UserSearchPagingResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Code of the error
+          example: "USER12"
+        message:
+          type: string
+          description: Response message
+          example: "Operation Success"
+        requestId:
+          type: string
+          description: Unique identifier for the request
+          example: "req11921"
+        data:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+              description: Total number of items matching the search criteria
+              example: 100
+            pageSize:
+              type: integer
+              description: Number of items per page
+              example: 10
+            currentPage:
+              type: integer
+              description: Current page number
+              example: 1
+            totalPages:
+              type: integer
+              description: Total number of pages
+              example: 10
+            items:
+              type: array
+              description: List of users matching the search criteria
+              items:
+                $ref: '#/components/schemas/UserSearchDTO'
+    UserSearchDTO:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique identifier for the user
+          example: "123456789"
+        username:
+          type: string
+          description: Username chosen by the user
+          example: "john_doe"
+        displayName:
+          type: string
+          description: Full name of the user
+          example: "John Doe"
+        avatarUrl:
+          type: string
+          description: URL to the user's avatar image
+          example: "https://example.com/avatar.jpg"
     FriendsListPagingResponse:
       type: object
       properties:

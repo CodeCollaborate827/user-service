@@ -32,6 +32,12 @@ public class UserApiDelegatorImpl implements UserApiDelegate {
   private static final String REQUEST_ID_HEADER = "requestId";
 
   @Override
+  public Mono<ResponseEntity<UserSearchPagingResponse>> searchUsers(String keyword, Integer pageSize, Integer currentPage, ServerWebExchange exchange) {
+    String requestId = extractRequestIdFromHeader(exchange);
+    return userService.searchUsers(requestId, keyword, pageSize, currentPage);
+  }
+
+  @Override
   public Mono<ResponseEntity<CommonSuccessResponse>> acceptFriendRequest(Mono<AcceptFriendRequest> acceptFriendRequest, ServerWebExchange exchange) {
     String requestId = extractRequestIdFromHeader(exchange);
     UUID userId = extractUserIdFromHeader(exchange);
